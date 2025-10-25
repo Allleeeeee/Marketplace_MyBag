@@ -1,0 +1,38 @@
+
+.navbar {
+    background-color: #ffff00; /* Цвет фона навбара */
+    padding: 10px 20px; /* Отступы */
+}
+
+.navbar-brand {
+    font-size: 24px; /* Размер шрифта для логотипа */
+    color: #333; /* Цвет текста */
+}
+
+.navbar img {
+    width: 40px; /* Размер изображений */
+    height: 40px;
+    margin-right: 10px; /* Отступ между изображениями и текстом */
+}
+
+.navbar .nav-button {
+    margin-left: 10px; /* Отступ между кнопками */
+}
+
+/* Медиа-запросы для адаптивного интерфейса */
+@media (max-width: 768px) {
+    .navbarimg {
+        display: none; /* Скрыть изображения на мобильных устройствах */
+    }
+
+    .navbar .nav-text {
+        display: inline; /* Показать текст на мобильных устройствах */
+        margin-left: 10px; /* Отступ для текста */
+    }
+}
+
+@media (min-width: 769px) {
+    .navbar .nav-text {
+        display: none; /* Скрыть текст на больших экранах */
+    }
+}

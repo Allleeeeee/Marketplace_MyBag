@@ -1,0 +1,10 @@
+export const ADMIN_ROUTE = '/admin'
+export const LOGIN_ROUTE = '/login'
+export const REGISTRATION_ROUTE = '/registration'
+export const SHOP_ROUTE = '/'
+export const DEVICE_ROUTE = '/device'
+export const CHAT_ROUTE = '/chat'; //маршрут для чата
+export const PROFILE_ROUTE='/profile';
+export const PRODUCT_ROUTE = '/product';
+export const FAVORITES_ROUTE = '/favorites'
+export const ADD_PRODUCT_ROUTE = '/add-product';
