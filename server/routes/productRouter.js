@@ -11,5 +11,5 @@ router.get('/prod/:id', productController.getOne)
 router.delete('/:id', productController.delete)
 router.get('/cities/unique', productController.getUniqueCities) // Старый маршрут переименован
 router.get('/city/:city', productController.getProductsByCity)
-
+router.get('/geocode', productController.geocode)
 module.exports = router

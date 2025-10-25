@@ -221,7 +221,40 @@ class ProductController {
 
         return res.json(products); 
     }
+// controllers/productController.js - добавить метод
 
+async geocode(req, res) {
+    try {
+        const { lat, lng } = req.query;
+        
+        // Используем Nominatim (OpenStreetMap) для обратного геокодирования
+        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=ru`);
+        const data = await response.json();
+        
+        let city = 'Минск'; // значение по умолчанию
+        
+        if (data.address) {
+            // Пытаемся найти город в различных полях ответа
+            city = data.address.city || 
+                   data.address.town || 
+                   data.address.village || 
+                   data.address.municipality || 
+                   'Минск';
+        }
+        
+        // Приводим к одному из городов Беларуси
+        const belarusCities = BELARUS_CITIES;
+        const normalizedCity = belarusCities.find(belCity => 
+            city.toLowerCase().includes(belCity.toLowerCase()) ||
+            belCity.toLowerCase().includes(city.toLowerCase())
+        ) || 'Минск';
+        
+        return res.json({ city: normalizedCity });
+    } catch (error) {
+        console.error('Ошибка геокодирования:', error);
+        return res.json({ city: 'Минск' });
+    }
+}
     async getOne(req, res) {
         try {
             const { id } = req.params; 
