@@ -1,0 +1,297 @@
+/* components/SearchBar.css */
+
+/* Основные цвета */
+:root {
+    --yellow-primary: #FFD700;
+    --yellow-dark: #E6C200;
+    --yellow-light: #FFF9C4;
+    --gray-dark: #424242;
+    --gray-medium: #757575;
+    --gray-light: #BDBDBD;
+    --gray-very-light: #F5F5F5;
+    --white: #FFFFFF;
+    --black: #212121;
+}
+
+.search-bar-container {
+    margin-bottom: 30px;
+    background: var(--white);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--gray-very-light);
+}
+
+.search-header {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.search-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--gray-dark);
+    margin: 0 0 8px 0;
+}
+
+.search-subtitle {
+    font-size: 16px;
+    color: var(--gray-medium);
+    margin: 0;
+}
+
+/* Основная поисковая строка */
+.search-form {
+    margin-bottom: 16px;
+}
+
+.search-input-group {
+    display: flex;
+    align-items: center;
+    position: relative;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.search-icon {
+    position: absolute;
+    left: 20px;
+    font-size: 18px;
+    color: var(--gray-medium);
+    z-index: 2;
+}
+
+.search-input {
+    flex: 1;
+    padding: 16px 60px 16px 50px;
+    border: 2px solid var(--gray-very-light);
+    border-radius: 12px;
+    font-size: 16px;
+    outline: none;
+    transition: all 0.3s ease;
+    background: var(--white);
+    color: var(--gray-dark);
+    font-weight: 500;
+}
+
+.search-input:focus {
+    border-color: var(--yellow-primary);
+    background: var(--white);
+    box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.1);
+}
+
+.search-input::placeholder {
+    color: var(--gray-light);
+    font-weight: 400;
+}
+
+.search-input:disabled {
+    background: var(--gray-very-light);
+    color: var(--gray-light);
+    cursor: not-allowed;
+}
+
+.clear-search-button {
+    position: absolute;
+    right: 70px;
+    background: var(--gray-very-light);
+    border: none;
+    font-size: 16px;
+    color: var(--gray-medium);
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.clear-search-button:hover {
+    background: var(--gray-light);
+    color: var(--white);
+}
+
+.search-button {
+    position: absolute;
+    right: 12px;
+    background: var(--yellow-primary);
+    color: var(--gray-dark);
+    border: none;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 100px;
+    box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+}
+
+.search-button:hover:not(:disabled) {
+    background: var(--yellow-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+}
+
+.search-button:disabled {
+    background: var(--gray-light);
+    color: var(--gray-medium);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.search-spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid transparent;
+    border-top: 2px solid var(--gray-dark);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Информация о результатах поиска */
+.search-results-info {
+    background: var(--yellow-light);
+    border: 1px solid var(--yellow-primary);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 16px;
+    text-align: center;
+}
+
+.results-main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.results-count {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--gray-dark);
+}
+
+.search-context {
+    font-size: 14px;
+    color: var(--gray-medium);
+    background: var(--white);
+    padding: 4px 12px;
+    border-radius: 16px;
+    border: 1px solid var(--yellow-primary);
+}
+
+.search-query {
+    font-size: 16px;
+    color: var(--gray-medium);
+    margin-bottom: 16px;
+}
+
+.clear-search-link {
+    background: var(--yellow-primary);
+    color: var(--gray-dark);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.clear-search-link:hover {
+    background: var(--yellow-dark);
+    transform: translateY(-1px);
+}
+
+/* Сообщение когда город не выбран */
+.no-city-message {
+    background: var(--gray-very-light);
+    border: 1px solid var(--gray-light);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    margin-top: 16px;
+}
+
+.no-city-icon {
+    font-size: 32px;
+    margin-bottom: 12px;
+}
+
+.no-city-text {
+    font-size: 16px;
+    color: var(--gray-medium);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .search-bar-container {
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .search-title {
+        font-size: 24px;
+    }
+
+    .search-input-group {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .search-icon {
+        position: static;
+        margin-bottom: 8px;
+    }
+
+    .search-input {
+        padding: 14px 16px;
+        width: 100%;
+    }
+
+    .clear-search-button {
+        position: static;
+        margin-left: 10px;
+    }
+
+    .search-button {
+        position: static;
+        width: 100%;
+        margin-top: 8px;
+    }
+
+    .results-main {
+        flex-direction: column;
+        gap: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .search-bar-container {
+        padding: 16px;
+    }
+
+    .search-title {
+        font-size: 20px;
+    }
+
+    .search-input {
+        font-size: 14px;
+    }
+
+    .search-results-info {
+        padding: 16px;
+    }
+}

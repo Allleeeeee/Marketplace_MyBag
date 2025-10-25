@@ -1,4 +1,33 @@
-/* components/ProductList.css */
+
+.search-empty-content {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.search-empty-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+}
+
+.search-empty-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.search-empty-subtitle {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 30px;
+}
+
+.empty-container {
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 .loading-container {
     display: flex;
     flex-direction: column;
@@ -326,5 +355,79 @@
     
     .empty-city-icon {
         font-size: 48px;
+    }
+}
+
+/* components/ProductList.css - добавьте эти стили */
+
+.all-products-notice {
+    background: var(--yellow-light);
+    border: 1px solid var(--yellow-primary);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.notice-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.notice-icon {
+    font-size: 32px;
+}
+
+.notice-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--gray-dark);
+}
+
+.back-to-search-button {
+    background: var(--yellow-primary);
+    color: var(--gray-dark);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.back-to-search-button:hover {
+    background: var(--yellow-dark);
+    transform: translateY(-1px);
+}
+
+.show-all-button {
+    background: var(--yellow-primary);
+    color: var(--gray-dark);
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 16px;
+}
+
+.show-all-button:hover {
+    background: var(--yellow-dark);
+    transform: translateY(-1px);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .all-products-notice {
+        padding: 16px;
+    }
+    
+    .notice-content {
+        gap: 8px;
     }
 }

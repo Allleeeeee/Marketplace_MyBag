@@ -15,19 +15,22 @@ const CityDisplay = observer(() => {
         const loadCities = async () => {
             await product.fetchCities();
             
-            // Если город еще не выбран, пытаемся восстановить или использовать первый из списка
-            if (!product.selectedCity && product.cities.length > 0) {
-                const savedCity = sessionStorage.getItem('city');
-                if (savedCity && product.cities.includes(savedCity)) {
-                    await product.fetchProductsByCity(savedCity);
-                } else {
-                    await product.fetchProductsByCity(product.cities[0]);
-                }
+            // Если в store уже есть выбранный город, используем его
+            if (product.selectedCity) {
+                return;
+            }
+            
+            // Иначе пытаемся восстановить из sessionStorage или использовать первый город
+            const savedCity = sessionStorage.getItem('city');
+            if (savedCity && product.cities.includes(savedCity)) {
+                await product.fetchProductsByCity(savedCity);
+            } else if (product.cities.length > 0) {
+                await product.fetchProductsByCity(product.cities[0]);
             }
         };
 
         loadCities();
-    }, []);
+    }, [product]);
 
     // Определение местоположения
     const getCurrentLocation = async () => {

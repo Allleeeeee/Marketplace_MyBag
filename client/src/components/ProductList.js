@@ -3,108 +3,61 @@ import React, { useContext, useEffect, useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { Context } from '../index';
 import ProductItem from './ProductItem';
+import SearchBar from './SearchBar';
 import '../css/components/ProductList.css';
 
 const ProductList = observer(() => {
     const { product } = useContext(Context);
-    const [nearbyCitiesProducts, setNearbyCitiesProducts] = useState([]);
-    const [isLoadingNearby, setIsLoadingNearby] = useState(false);
+    const [allProducts, setAllProducts] = useState([]);
+    const [showAllProducts, setShowAllProducts] = useState(false);
 
-    // Функция для получения ближайших городов
-    const getNearbyCities = (currentCity) => {
-        // Приоритет городов по регионам
-        const cityRegions = {
-            'Минск': ['Минск', 'Борисов', 'Молодечно', 'Солигорск', 'Жодино'],
-            'Брест': ['Брест', 'Пинск', 'Барановичи', 'Кобрин', 'Лунинец'],
-            'Гродно': ['Гродно', 'Лида', 'Слоним', 'Волковыск', 'Щучин'],
-            'Гомель': ['Гомель', 'Мозырь', 'Жлобин', 'Речица', 'Светлогорск'],
-            'Витебск': ['Витебск', 'Орша', 'Полоцк', 'Новополоцк', 'Поставы'],
-            'Могилёв': ['Могилёв', 'Бобруйск', 'Осиповичи', 'Горки', 'Кричев']
-        };
-
-        // Находим регион текущего города
-        let region = null;
-        for (const [regionName, cities] of Object.entries(cityRegions)) {
-            if (cities.includes(currentCity)) {
-                region = regionName;
-                break;
+    // Загрузка всех товаров
+    const loadAllProducts = async () => {
+        try {
+            const response = await fetch('http://localhost:5000/api/prod?limit=1000');
+            if (response.ok) {
+                const data = await response.json();
+                setAllProducts(data.rows || data);
             }
+        } catch (error) {
+            console.error('Ошибка при загрузке всех товаров:', error);
         }
-
-        // Если город не найден в регионах, используем Минск как fallback
-        if (!region) {
-            region = 'Минск';
-        }
-
-        // Возвращаем города из того же региона, исключая текущий
-        return cityRegions[region].filter(city => city !== currentCity);
     };
 
-    // Функция для загрузки товаров из ближайших городов
-    const loadNearbyCitiesProducts = async (currentCity) => {
-        if (!currentCity) return;
+    // Показать все товары
+    const handleShowAllProducts = async () => {
+        setShowAllProducts(true);
+        await loadAllProducts();
+    };
 
-        setIsLoadingNearby(true);
-        try {
-            const nearbyCities = getNearbyCities(currentCity);
-            const productsPromises = nearbyCities.map(async (city) => {
-                try {
-                    const response = await fetch(`http://localhost:5000/api/prod/city/${encodeURIComponent(city)}`);
-                    if (response.ok) {
-                        const data = await response.json();
-                        return {
-                            city: city,
-                            products: data.slice(0, 6), // Берем первые 6 товаров
-                            count: data.length
-                        };
-                    }
-                } catch (error) {
-                    console.error(`Ошибка при загрузке товаров для ${city}:`, error);
-                }
-                return null;
-            });
-
-            const results = await Promise.all(productsPromises);
-            const validResults = results.filter(result => result && result.products.length > 0);
-            setNearbyCitiesProducts(validResults);
-
-        } catch (error) {
-            console.error('Ошибка при загрузке товаров из соседних городов:', error);
-        } finally {
-            setIsLoadingNearby(false);
-        }
+    // Вернуться к поиску
+    const handleBackToSearch = () => {
+        setShowAllProducts(false);
+        setAllProducts([]);
     };
 
     // Автоматическая загрузка товаров при монтировании
     useEffect(() => {
-        if (!product.products.length && !product.isLoading) {
-            if (product.selectedCity) {
-                product.fetchProductsByCity(product.selectedCity);
-            } else {
-                product.fetchProducts();
-            }
+        if (!product.products.length && !product.isLoading && !product.hasActiveSearch) {
+            product.fetchProducts();
         }
     }, [product]);
-
-    // Загружаем товары из соседних городов, если в текущем городе ничего нет
-    useEffect(() => {
-        if (product.products.length === 0 && product.selectedCity && !product.isLoading) {
-            loadNearbyCitiesProducts(product.selectedCity);
-        } else {
-            setNearbyCitiesProducts([]);
-        }
-    }, [product.products.length, product.selectedCity, product.isLoading]);
 
     // Состояние загрузки
     if (product.isLoading) {
         return (
-            <div className="loading-container">
-                <div className="loading-spinner"></div>
-                <div className="loading-text">
-                    {product.selectedCity 
-                        ? `Загружаем товары для города ${product.selectedCity}...`
-                        : 'Загружаем товары...'
-                    }
+            <div className="product-list-container">
+                <SearchBar />
+                <div className="loading-container">
+                    <div className="loading-spinner"></div>
+                    <div className="loading-text">
+                        {product.hasActiveSearch 
+                            ? `Ищем "${product.currentSearchQuery}"...` 
+                            : product.selectedCity 
+                                ? `Загружаем товары для города ${product.selectedCity}...`
+                                : 'Загружаем товары...'
+                        }
+                    </div>
                 </div>
             </div>
         );
@@ -113,110 +66,142 @@ const ProductList = observer(() => {
     // Состояние ошибки
     if (product.error) {
         return (
-            <div className="error-container">
-                <div className="error-icon">⚠️</div>
-                <div className="error-text">{product.error}</div>
-                <button 
-                    className="retry-button"
-                    onClick={() => {
-                        if (product.selectedCity) {
-                            product.fetchProductsByCity(product.selectedCity);
-                        } else {
-                            product.fetchProducts();
-                        }
-                    }}
-                >
-                    Попробовать снова
-                </button>
+            <div className="product-list-container">
+                <SearchBar />
+                <div className="error-container">
+                    <div className="error-icon">⚠️</div>
+                    <div className="error-text">{product.error}</div>
+                    <button 
+                        className="retry-button"
+                        onClick={() => product.fetchProducts()}
+                    >
+                        Попробовать снова
+                    </button>
+                </div>
             </div>
         );
     }
 
-    // Проверка на неинициализированное состояние
-    if (!product.products || !Array.isArray(product.products)) {
+    // Если показываем все товары (когда по поиску ничего не нашлось)
+    if (showAllProducts) {
         return (
-            <div className="loading-container">
-                <div className="loading-text">Загрузка данных...</div>
+            <div className="product-list-container">
+                <SearchBar />
+                
+                <div className="product-list-header">
+                    <div className="header-content">
+                        <h2 className="product-list-title">
+                            Все товары
+                        </h2>
+                        {allProducts.length > 0 && (
+                            <div className="product-count-badge">
+                                {allProducts.length}
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                <div className="all-products-notice">
+                    <div className="notice-content">
+                        <div className="notice-icon">📦</div>
+                        <div className="notice-text">
+                            Показаны все доступные товары
+                        </div>
+                        <button 
+                            onClick={handleBackToSearch}
+                            className="back-to-search-button"
+                        >
+                            Вернуться к поиску
+                        </button>
+                    </div>
+                </div>
+
+                {allProducts.length > 0 ? (
+                    <div className="product-grid">
+                        {allProducts.map(productItem => (
+                            <ProductItem key={productItem.id} product={productItem} />
+                        ))}
+                    </div>
+                ) : (
+                    <div className="empty-container">
+                        <div className="search-empty-content">
+                            <div className="search-empty-icon">📦</div>
+                            <div className="search-empty-title">
+                                Товары не найдены
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         );
     }
 
     return (
         <div className="product-list-container">
-            {/* Заголовок с информацией о городе и количестве товаров */}
+            <SearchBar />
+            
+            {/* Заголовок */}
             <div className="product-list-header">
-                <h2 className="product-list-title">
-                    {product.selectedCity 
-                        ? `Товары в городе ${product.selectedCity}`
-                        : 'Все товары'
-                    }
-                </h2>
-                {product.products.length > 0 && (
-                    <div className="product-count">
-                        Найдено товаров: {product.totalCount}
-                    </div>
-                )}
+                <div className="header-content">
+                    <h2 className="product-list-title">
+                        {product.hasActiveSearch 
+                            ? `Результаты поиска: "${product.currentSearchQuery}"`
+                            : product.selectedCity 
+                                ? `Товары в городе ${product.selectedCity}`
+                                : 'Все товары'
+                        }
+                    </h2>
+                    {product.products.length > 0 && (
+                        <div className="product-count-badge">
+                            {product.totalCount}
+                        </div>
+                    )}
+                </div>
             </div>
 
-            {/* Основной список товаров */}
+            {/* Список товаров */}
             {product.products.length === 0 ? (
-                <div className="empty-city-container">
-                    <div className="empty-city-content">
-                        <div className="empty-city-icon">🏙️</div>
-                        <div className="empty-city-title">
-                            В городе <strong>{product.selectedCity}</strong> ничего не найдено
-                        </div>
-                        <div className="empty-city-subtitle">
-                            Но вот что есть в nearby городах...
-                        </div>
-
-                        {/* Товары из соседних городов */}
-                        {isLoadingNearby ? (
-                            <div className="nearby-loading">
-                                <div className="loading-spinner-small"></div>
-                                Ищем товары в nearby городах...
+                <div className="empty-container">
+                    {product.hasActiveSearch ? (
+                        // Нет результатов поиска
+                        <div className="search-empty-content">
+                            <div className="search-empty-icon">🔍</div>
+                            <div className="search-empty-title">
+                                По запросу "{product.currentSearchQuery}" ничего не найдено
                             </div>
-                        ) : nearbyCitiesProducts.length > 0 ? (
-                            <div className="nearby-cities-section">
-                                {nearbyCitiesProducts.map((cityData, index) => (
-                                    <div key={index} className="nearby-city-group">
-                                        <div className="nearby-city-header">
-                                            <h4 className="nearby-city-name">
-                                                🏙️ {cityData.city}
-                                            </h4>
-                                            <span className="nearby-city-count">
-                                                {cityData.count} товаров
-                                            </span>
-                                        </div>
-                                        <div className="nearby-products-grid">
-                                            {cityData.products.map(productItem => (
-                                                <ProductItem 
-                                                    key={`${cityData.city}-${productItem.id}`} 
-                                                    product={productItem} 
-                                                />
-                                            ))}
-                                        </div>
-                                    </div>
-                                ))}
+                            <div className="search-empty-subtitle">
+                                Но вы можете посмотреть все доступные товары
                             </div>
-                        ) : (
-                            <div className="no-nearby-products">
-                                <div className="no-nearby-icon">🔍</div>
-                                <div className="no-nearby-text">
-                                    В nearby городах тоже ничего не найдено
+                            <button 
+                                onClick={handleShowAllProducts}
+                                className="show-all-button"
+                            >
+                                Показать все товары
+                            </button>
+                        </div>
+                    ) : (
+                        // Нет товаров в городе
+                        <div className="empty-city-container">
+                            <div className="empty-city-content">
+                                <div className="empty-city-icon">🏙️</div>
+                                <div className="empty-city-title">
+                                    В городе <strong>{product.selectedCity}</strong> ничего не найдено
+                                </div>
+                                <div className="empty-city-subtitle">
+                                    Попробуйте посмотреть все доступные товары
                                 </div>
                                 <button 
+                                    onClick={handleShowAllProducts}
                                     className="show-all-button"
-                                    onClick={() => product.resetFilters()}
                                 >
                                     Показать все товары
                                 </button>
                             </div>
-                        )}
-                    </div>
+                        </div>
+                    )}
                 </div>
             ) : (
-                /* Обычное отображение товаров */
+                // Есть товары
                 <>
                     <div className="product-grid">
                         {product.products.map(productItem => (
@@ -234,14 +219,20 @@ const ProductList = observer(() => {
                                 <button 
                                     className="pagination-button"
                                     disabled={product.page <= 1}
-                                    onClick={() => product.setPage(product.page - 1)}
+                                    onClick={async () => {
+                                        product.setPage(product.page - 1);
+                                        await product.fetchProducts();
+                                    }}
                                 >
                                     Назад
                                 </button>
                                 <button 
                                     className="pagination-button"
                                     disabled={product.page >= Math.ceil(product.totalCount / product.limit)}
-                                    onClick={() => product.setPage(product.page + 1)}
+                                    onClick={async () => {
+                                        product.setPage(product.page + 1);
+                                        await product.fetchProducts();
+                                    }}
                                 >
                                     Вперед
                                 </button>

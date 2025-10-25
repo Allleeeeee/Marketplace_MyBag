@@ -10,6 +10,7 @@ class ProductStore {
     isLoading = false;
     error = null;
     cities = [];
+    currentSearchQuery = '';
 
     constructor() {
         makeAutoObservable(this);
@@ -52,31 +53,11 @@ class ProductStore {
     setCities(cities) {
         this.cities = cities;
     }
-// В ProductStore.js добавьте метод
-async fetchProductsFromMultipleCities(cities) {
-    this.setLoading(true);
-    this.setError(null);
-    
-    try {
-        const promises = cities.map(city => 
-            fetch(`http://localhost:5000/api/prod/city/${encodeURIComponent(city)}`)
-                .then(response => response.ok ? response.json() : [])
-                .catch(() => [])
-        );
 
-        const results = await Promise.all(promises);
-        const allProducts = results.flat();
-        
-        this.setProducts(allProducts);
-        this.setTotalCount(allProducts.length);
-        
-    } catch (error) {
-        console.error('Ошибка при загрузке товаров из нескольких городов:', error);
-        this.setError('Не удалось загрузить товары');
-    } finally {
-        this.setLoading(false);
+    setCurrentSearchQuery(query) {
+        this.currentSearchQuery = query;
     }
-}
+
     // Получение списка городов из БД
     async fetchCities() {
         try {
@@ -92,106 +73,98 @@ async fetchProductsFromMultipleCities(cities) {
         return [];
     }
 
-    // Получение всех продуктов (с пагинацией и фильтрами)
-    async fetchProducts(filters = {}) {
-        this.setLoading(true);
-        this.setError(null);
+  // store/ProductStore.js - обновленный метод fetchProducts
+async fetchProducts(filters = {}) {
+    this.setLoading(true);
+    this.setError(null);
+    
+    try {
+        let url = `http://localhost:5000/api/prod?page=${this.page}&limit=${this.limit}`;
         
-        try {
-            let url = `http://localhost:5000/api/prod?page=${this.page}&limit=${this.limit}`;
-            
-            const queryParams = new URLSearchParams();
-            
-            if (filters.typeId) {
-                queryParams.append('typeId', filters.typeId);
-            }
-            if (filters.sellerId) {
-                queryParams.append('sellerId', filters.sellerId);
-            }
-            if (this.selectedCity) {
-                queryParams.append('city', this.selectedCity);
-            }
-            
-            const queryString = queryParams.toString();
-            if (queryString) {
-                url += `&${queryString}`;
-            }
-
-            const response = await fetch(url);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            this.setProducts(data.rows || data);
-            this.setTotalCount(data.count || data.length);
-            
-        } catch (error) {
-            console.error('Ошибка при получении продуктов:', error);
-            this.setError('Не удалось загрузить товары');
-            this.setProducts([]);
-            this.setTotalCount(0);
-        } finally {
-            this.setLoading(false);
+        const queryParams = new URLSearchParams();
+        
+        // Добавляем город если выбран
+        if (this.selectedCity) {
+            queryParams.append('city', this.selectedCity);
         }
-    }
+        
+        // Добавляем другие фильтры
+        if (filters.typeId) {
+            queryParams.append('typeId', filters.typeId);
+        }
+        if (filters.sellerId) {
+            queryParams.append('sellerId', filters.sellerId);
+        }
+        
+        const queryString = queryParams.toString();
+        if (queryString) {
+            url += `&${queryString}`;
+        }
 
-    // Получение продуктов по конкретному городу
+        console.log('Fetch URL:', url);
+
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        let products = data.rows || data;
+        let totalCount = data.count || data.length;
+
+        // ФИЛЬТРАЦИЯ НА ФРОНТЕНДЕ - временное решение
+        if (this.currentSearchQuery) {
+            const searchTerm = this.currentSearchQuery.toLowerCase().trim();
+            products = products.filter(product => 
+                product.name.toLowerCase().includes(searchTerm) ||
+                (product.description && product.description.toLowerCase().includes(searchTerm)) ||
+                (product.price_text && product.price_text.toLowerCase().includes(searchTerm))
+            );
+            totalCount = products.length;
+        }
+
+        this.setProducts(products);
+        this.setTotalCount(totalCount);
+        
+    } catch (error) {
+        console.error('Ошибка при получении продуктов:', error);
+        this.setError('Не удалось загрузить товары');
+        this.setProducts([]);
+        this.setTotalCount(0);
+    } finally {
+        this.setLoading(false);
+    }
+}
+
+    // Получение продуктов по конкретному городу (для обратной совместимости)
     async fetchProductsByCity(city) {
-        this.setLoading(true);
-        this.setError(null);
         this.setSelectedCity(city);
-        
-        try {
-            const response = await fetch(`http://localhost:5000/api/prod/city/${encodeURIComponent(city)}`);
-            
-            if (!response.ok) {
-                // Если товаров для города нет, пробуем загрузить все
-                await this.fetchProducts();
-                return;
-            }
-            
-            const data = await response.json();
-            this.setProducts(data);
-            this.setTotalCount(data.length);
-            
-        } catch (error) {
-            console.error('Ошибка при получении продуктов по городу:', error);
-            this.setError(`Не удалось загрузить товары для города ${city}`);
-            await this.fetchProducts();
-        } finally {
-            this.setLoading(false);
-        }
+        this.setCurrentSearchQuery(''); // Сбрасываем поиск при смене города
+        await this.fetchProducts();
     }
 
-    // Получение одного продукта по ID
-    async fetchProductById(id) {
-        this.setLoading(true);
-        this.setError(null);
-        
-        try {
-            const response = await fetch(`http://localhost:5000/api/prod/prod/${id}`);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            return data;
-            
-        } catch (error) {
-            console.error('Ошибка при получении продукта:', error);
-            this.setError('Не удалось загрузить информацию о товаре');
-            return null;
-        } finally {
-            this.setLoading(false);
-        }
+    // Поиск товаров - использует fetchProducts
+    async searchProducts(searchQuery) {
+        this.setCurrentSearchQuery(searchQuery);
+        await this.fetchProducts();
     }
 
-    // Сброс фильтров
+    // Смена города - использует fetchProducts
+    async changeCity(city) {
+        await this.fetchProductsByCity(city);
+    }
+
+    // Сброс поиска
+    async clearSearch() {
+        this.setCurrentSearchQuery('');
+        await this.fetchProducts();
+    }
+
+    // Сброс всех фильтров
     async resetFilters() {
         this.setSelectedCity('');
+        this.setCurrentSearchQuery('');
         sessionStorage.removeItem('city');
         await this.fetchProducts();
     }
@@ -204,6 +177,11 @@ async fetchProductsFromMultipleCities(cities) {
     // Есть ли выбранный город
     get hasSelectedCity() {
         return !!this.selectedCity;
+    }
+
+    // Есть ли активный поиск
+    get hasActiveSearch() {
+        return !!this.currentSearchQuery;
     }
 }
 

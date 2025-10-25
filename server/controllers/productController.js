@@ -353,6 +353,84 @@ async geocode(req, res) {
         }
     }
 
+
+async search(req, res) {
+    try {
+        let { q: searchQuery, sellerId, typeId, city, limit, page } = req.query;
+        page = page || 1;
+        limit = limit || 9;
+        let offset = page * limit - limit;
+
+        console.log('Поисковый запрос:', searchQuery);
+
+        if (!searchQuery || searchQuery.trim() === '') {
+            return res.status(400).json({ message: 'Поисковый запрос не может быть пустым' });
+        }
+
+        const searchTerm = searchQuery.trim().toLowerCase();
+        
+        let whereClause = {};
+
+        // Если есть поисковый запрос, добавляем условия поиска
+        if (searchTerm) {
+            whereClause = {
+                [sequelize.Op.or]: [
+                    { 
+                        name: { 
+                            [sequelize.Op.iLike]: `%${searchTerm}%` 
+                        } 
+                    },
+                    { 
+                        description: { 
+                            [sequelize.Op.iLike]: `%${searchTerm}%` 
+                        } 
+                    },
+                    { 
+                        price_text: { 
+                            [sequelize.Op.iLike]: `%${searchTerm}%` 
+                        } 
+                    }
+                ]
+            };
+        }
+
+        // Добавляем фильтры
+        if (sellerId) {
+            whereClause.seller_id = sellerId;
+        }
+        if (typeId) {
+            whereClause.type_id = typeId;
+        }
+        if (city) {
+            whereClause.city = city;
+        }
+
+        console.log('Условия поиска:', whereClause);
+
+        const products = await Product.findAndCountAll({ 
+            where: whereClause, 
+            limit, 
+            offset,
+            include: [
+                { model: Type, attributes: ['id', 'name'] }
+            ]
+        });
+
+        console.log('Найдено товаров:', products.count);
+
+        return res.json({
+            products: products.rows,
+            totalCount: products.count,
+            currentPage: parseInt(page),
+            totalPages: Math.ceil(products.count / limit),
+            searchQuery: searchTerm
+        });
+
+    } catch (error) {
+        console.error('Ошибка при поиске товаров:', error);
+        return res.status(500).json({ message: 'Ошибка при выполнении поиска' });
+    }
+}
     // Новый метод для получения списка городов Беларуси
     async getBelarusCities(req, res) {
         try {
