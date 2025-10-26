@@ -1,4 +1,3 @@
-// components/FiltersSidebar.js
 import React, { useState, useContext, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
 import { Context } from '../index';
@@ -19,16 +18,13 @@ const FiltersSidebar = observer(() => {
     const [errors, setErrors] = useState({});
     const [isApplying, setIsApplying] = useState(false);
 
-    // Инициализация фильтров из product store при монтировании
     useEffect(() => {
         loadCategories();
-        // Восстанавливаем фильтры из store если они есть
         if (product.currentFilters) {
             setFilters(product.currentFilters);
         }
     }, []);
 
-    // Загрузка категорий
     const loadCategories = async () => {
         try {
             const response = await fetch('http://localhost:5000/api/prod/types');
@@ -41,13 +37,11 @@ const FiltersSidebar = observer(() => {
         }
     };
 
-    // Загрузка характеристик для выбранной категории
     useEffect(() => {
         if (filters.categoryId) {
             loadCharacteristics(filters.categoryId);
         } else {
             setCharacteristics([]);
-            // Не сбрасываем характеристики при изменении категории, только загружаем новые
         }
     }, [filters.categoryId]);
 
@@ -82,7 +76,6 @@ const FiltersSidebar = observer(() => {
         }
     };
 
-    // Валидация фильтров
     const validateFilters = () => {
         const newErrors = {};
 
@@ -106,7 +99,6 @@ const FiltersSidebar = observer(() => {
         return Object.keys(newErrors).length === 0;
     };
 
-    // Очистка фильтров
     const clearFilters = async () => {
         const clearedFilters = {
             minPrice: '',
@@ -123,7 +115,6 @@ const FiltersSidebar = observer(() => {
         
         setIsApplying(true);
         try {
-            // Сохраняем очищенные фильтры в store
             product.setCurrentFilters(clearedFilters);
             
             if (product.currentSearchQuery) {
@@ -138,7 +129,6 @@ const FiltersSidebar = observer(() => {
         }
     };
 
-    // Очистка ошибки
     const clearError = (fieldName) => {
         setErrors(prev => {
             const newErrors = { ...prev };
@@ -147,7 +137,6 @@ const FiltersSidebar = observer(() => {
         });
     };
 
-    // Обработчик изменения фильтров (сохраняем значения без применения)
     const handleFilterChange = (filterType, value) => {
         const newFilters = {
             ...filters,
@@ -155,7 +144,6 @@ const FiltersSidebar = observer(() => {
         };
         setFilters(newFilters);
 
-        // Очищаем ошибки при изменении
         if (errors[filterType]) {
             clearError(filterType);
         }
@@ -163,11 +151,9 @@ const FiltersSidebar = observer(() => {
             clearError('priceRange');
         }
 
-        // Только валидация, без применения
         validateFilters();
     };
 
-    // Обработчик изменения характеристик (сохраняем значения без применения)
     const handleCharacteristicChange = (charTitle, charValue, checked) => {
         const newCharacteristics = { ...filters.characteristics };
         
@@ -175,7 +161,6 @@ const FiltersSidebar = observer(() => {
             if (!newCharacteristics[charTitle]) {
                 newCharacteristics[charTitle] = [];
             }
-            // Проверяем, нет ли уже такого значения
             if (!newCharacteristics[charTitle].includes(charValue)) {
                 newCharacteristics[charTitle].push(charValue);
             }
@@ -194,11 +179,9 @@ const FiltersSidebar = observer(() => {
         };
         setFilters(newFilters);
 
-        // Только валидация, без применения
         validateFilters();
     };
 
-    // Применение фильтров
     const applyFilters = async () => {
         if (!validateFilters()) {
             return;
@@ -206,7 +189,6 @@ const FiltersSidebar = observer(() => {
 
         setIsApplying(true);
         try {
-            // Сохраняем текущие фильтры в store
             product.setCurrentFilters(filters);
             
             if (product.currentSearchQuery) {
@@ -221,10 +203,8 @@ const FiltersSidebar = observer(() => {
         }
     };
 
-    // Восстановление характеристик при изменении категории
     useEffect(() => {
         if (filters.categoryId && product.currentFilters && product.currentFilters.characteristics) {
-            // Сохраняем текущие характеристики при смене категории
             setFilters(prev => ({
                 ...prev,
                 characteristics: product.currentFilters.characteristics
@@ -257,7 +237,6 @@ const FiltersSidebar = observer(() => {
             )}
 
             <div className="filters-vertical">
-                {/* Фильтр по категории */}
                 <div className="filter-group">
                     <label className="filter-label">Категория</label>
                     <select
@@ -275,7 +254,6 @@ const FiltersSidebar = observer(() => {
                     </select>
                 </div>
 
-                {/* Чекбокс "Только товары с ценой" */}
                 <div className="filter-group">
                     <label className="filter-checkbox">
                         <input
@@ -289,7 +267,6 @@ const FiltersSidebar = observer(() => {
                     </label>
                 </div>
 
-                {/* Фильтр по цене */}
                 <div className="filter-group">
                     <label className="filter-label">Цена, ₽</label>
                     <div className="price-inputs-vertical">
@@ -326,7 +303,6 @@ const FiltersSidebar = observer(() => {
                     )}
                 </div>
 
-                {/* Сортировка */}
                 <div className="filter-group">
                     <label className="filter-label">Сортировка</label>
                     <select
@@ -343,7 +319,6 @@ const FiltersSidebar = observer(() => {
                     </select>
                 </div>
 
-                {/* Характеристики */}
                 {characteristics.length > 0 && (
                     <div className="characteristics-section">
                         <h4 className="characteristics-title">Характеристики</h4>
@@ -371,7 +346,6 @@ const FiltersSidebar = observer(() => {
                     </div>
                 )}
 
-                {/* Кнопка применения фильтров */}
                 <div className="filter-actions">
                     <button
                         onClick={applyFilters}

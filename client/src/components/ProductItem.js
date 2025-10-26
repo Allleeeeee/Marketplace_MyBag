@@ -1,4 +1,3 @@
-// components/ProductItem.js
 import React from 'react';
 import { useHistory } from 'react-router-dom';
 import { PRODUCT_ROUTE } from '../utils/const';
@@ -9,7 +8,7 @@ const ProductItem = ({ product }) => {
     const history = useHistory();
 
     if (!product) {
-        return null; // или можно вернуть placeholder
+        return null; 
     }
 
     return (

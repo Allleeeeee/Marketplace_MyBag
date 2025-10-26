@@ -1,4 +1,3 @@
-// store/ProductStore.js
 import { makeAutoObservable } from 'mobx';
 
 class ProductStore {
@@ -11,7 +10,7 @@ class ProductStore {
     error = null;
     cities = [];
     currentSearchQuery = '';
-    currentFilters = null; // Добавляем хранение текущих фильтров
+    currentFilters = null; 
 
     constructor() {
         makeAutoObservable(this);
@@ -19,7 +18,6 @@ class ProductStore {
         this.initializeFilters();
     }
 
-    // Инициализация города при загрузке store
     initializeCity() {
         const savedCity = sessionStorage.getItem('city');
         if (savedCity) {
@@ -27,7 +25,6 @@ class ProductStore {
         }
     }
 
-    // Инициализация фильтров из sessionStorage
     initializeFilters() {
         const savedFilters = sessionStorage.getItem('productFilters');
         if (savedFilters) {
@@ -73,10 +70,8 @@ class ProductStore {
         this.currentSearchQuery = query;
     }
 
-    // Сохранение текущих фильтров
     setCurrentFilters(filters) {
         this.currentFilters = filters;
-        // Сохраняем в sessionStorage для восстановления при перезагрузке
         try {
             sessionStorage.setItem('productFilters', JSON.stringify(filters));
         } catch (error) {
@@ -84,18 +79,18 @@ class ProductStore {
         }
     }
 
-    // Получение текущих фильтров
+   
     getCurrentFilters() {
         return this.currentFilters;
     }
 
-    // Очистка фильтров
+ 
     clearCurrentFilters() {
         this.currentFilters = null;
         sessionStorage.removeItem('productFilters');
     }
 
-    // Получение списка городов из БД
+   
     async fetchCities() {
         try {
             const response = await fetch('http://localhost:5000/api/prod/cities');
@@ -146,7 +141,7 @@ class ProductStore {
             const data = await response.json();
             let allProducts = data.rows || data;
 
-            // ПОИСК НА ФРОНТЕНДЕ
+          
             if (this.currentSearchQuery) {
                 const searchTerm = this.currentSearchQuery.toLowerCase().trim();
                 allProducts = allProducts.filter(product => 
@@ -156,14 +151,14 @@ class ProductStore {
                 );
             }
 
-            // ФИЛЬТРАЦИЯ ПО КАТЕГОРИИ
+           
             if (filters.categoryId) {
                 allProducts = allProducts.filter(product => 
                     product.type_id == filters.categoryId
                 );
             }
 
-            // ФИЛЬТРАЦИЯ ПО ХАРАКТЕРИСТИКАМ
+            
             if (filters.characteristics && Object.keys(filters.characteristics).length > 0) {
                 allProducts = allProducts.filter(product => {
                     if (!product.info || !Array.isArray(product.info)) return false;
@@ -177,12 +172,12 @@ class ProductStore {
                 });
             }
 
-            // ФИЛЬТРАЦИЯ ПО ЦЕНЕ (исправленная логика)
+          
             if (filters.minPrice) {
                 const minPrice = parseFloat(filters.minPrice);
                 allProducts = allProducts.filter(product => {
                     if (product.price === null || product.price === undefined || product.price === 0) {
-                        return !filters.excludeNoPrice; // Если excludeNoPrice=true, исключаем
+                        return !filters.excludeNoPrice;
                     }
                     return product.price >= minPrice;
                 });
@@ -192,7 +187,7 @@ class ProductStore {
                 const maxPrice = parseFloat(filters.maxPrice);
                 allProducts = allProducts.filter(product => {
                     if (product.price === null || product.price === undefined || product.price === 0) {
-                        return !filters.excludeNoPrice; // Если excludeNoPrice=true, исключаем
+                        return !filters.excludeNoPrice;
                     }
                     return product.price <= maxPrice;
                 });
@@ -206,7 +201,6 @@ class ProductStore {
                 );
             }
 
-            // СОРТИРОВКА
             if (filters.sortBy) {
                 switch (filters.sortBy) {
                     case 'price_asc':
@@ -242,7 +236,6 @@ class ProductStore {
                 }
             }
 
-            // Пагинация на фронтенде
             const startIndex = (this.page - 1) * this.limit;
             const endIndex = startIndex + this.limit;
             const paginatedProducts = allProducts.slice(startIndex, endIndex);
@@ -260,18 +253,15 @@ class ProductStore {
         }
     }
 
-    // Получение продуктов по конкретному городу (для обратной совместимости)
     async fetchProductsByCity(city) {
         this.setSelectedCity(city);
-        this.setCurrentSearchQuery(''); // Сбрасываем поиск при смене города
+        this.setCurrentSearchQuery(''); 
         await this.fetchProducts();
     }
 
-    // Поиск товаров - использует fetchProducts
     async searchProducts(searchQuery, filters = {}) {
         this.setCurrentSearchQuery(searchQuery);
         
-        // Объединяем с текущими фильтрами если они есть
         const finalFilters = { ...this.currentFilters, ...filters };
         if (Object.keys(finalFilters).length > 0) {
             this.setCurrentFilters(finalFilters);
@@ -280,18 +270,15 @@ class ProductStore {
         await this.fetchProducts(finalFilters);
     }
 
-    // Смена города - использует fetchProducts
     async changeCity(city) {
         await this.fetchProductsByCity(city);
     }
 
-    // Сброс поиска
     async clearSearch() {
         this.setCurrentSearchQuery('');
         await this.fetchProducts(this.currentFilters || {});
     }
 
-    // Сброс всех фильтров
     async resetFilters() {
         this.setSelectedCity('');
         this.setCurrentSearchQuery('');
@@ -300,28 +287,23 @@ class ProductStore {
         await this.fetchProducts();
     }
 
-    // Применение фильтров
     async applyFilters(filters) {
         this.setCurrentFilters(filters);
         await this.fetchProducts(filters);
     }
 
-    // Получение текущего города
     get currentCity() {
         return this.selectedCity || sessionStorage.getItem('city') || 'Выберите город';
     }
 
-    // Есть ли выбранный город
     get hasSelectedCity() {
         return !!this.selectedCity;
     }
 
-    // Есть ли активный поиск
     get hasActiveSearch() {
         return !!this.currentSearchQuery;
     }
 
-    // Есть ли активные фильтры
     get hasActiveFilters() {
         return this.currentFilters && (
             this.currentFilters.minPrice || 
@@ -334,5 +316,4 @@ class ProductStore {
     }
 }
 
-// Создаем экземпляр store
 export const productStore = new ProductStore();

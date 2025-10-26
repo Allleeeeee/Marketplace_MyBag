@@ -15,21 +15,19 @@ class SellerController {
                 return next(ApiError.badRequest('Необходимы поля: name и user_id'));
             }
 
-            // Проверяем, не существует ли уже продавец для этого пользователя
-            const existingSeller = await Seller.findOne({ where: { user_id } });
+             const existingSeller = await Seller.findOne({ where: { user_id } });
             if (existingSeller) {
                 console.log('Seller already exists for user:', user_id);
                 return res.json(existingSeller);
             }
 
-            // Создаем папку static если ее нет
+            
             const staticDir = path.resolve(__dirname, '..', 'static');
             if (!fs.existsSync(staticDir)) {
                 fs.mkdirSync(staticDir, { recursive: true });
             }
 
             let img = null;
-            // Обработка изображения если есть
             if (req.files && req.files.img) {
                 const uploadedImg = req.files.img;
                 if (uploadedImg.mimetype.startsWith('image/')) {
@@ -50,7 +48,6 @@ class SellerController {
 
             console.log('Seller created successfully:', seller.id);
             
-            // Добавляем полный URL к изображению
             const sellerData = seller.toJSON();
             if (sellerData.img) {
                 sellerData.img = `${req.protocol}://${req.get('host')}/static/${sellerData.img}`;
@@ -78,7 +75,6 @@ class SellerController {
                 return next(ApiError.notFound('Продавец не найден'));
             }
             
-            // Добавляем полный URL к изображению
             const sellerData = seller.toJSON();
             if (sellerData.img) {
                 sellerData.img = `${req.protocol}://${req.get('host')}/static/${sellerData.img}`;
@@ -102,33 +98,28 @@ class SellerController {
                 return next(ApiError.notFound('Продавец не найден'));
             }
 
-            // Создаем папку static если ее нет
             const staticDir = path.resolve(__dirname, '..', 'static');
             if (!fs.existsSync(staticDir)) {
                 fs.mkdirSync(staticDir, { recursive: true });
             }
 
-            // Обработка загруженного изображения
             if (req.files && req.files.img) {
                 const uploadedImg = req.files.img;
                 
-                // Проверяем тип файла
                 if (!uploadedImg.mimetype.startsWith('image/')) {
                     return next(ApiError.badRequest('Можно загружать только изображения'));
                 }
 
-                // Генерируем уникальное имя файла
                 const fileExtension = path.extname(uploadedImg.name);
                 const fileName = uuidv4() + fileExtension;
                 const filePath = path.join(staticDir, fileName);
 
-                // Перемещаем файл
                 await uploadedImg.mv(filePath);
                 console.log('File saved to:', filePath);
                 
                 img = fileName;
 
-                // Удаляем старое изображение если оно есть
+              
                 if (seller.img) {
                     const oldFilePath = path.join(staticDir, seller.img);
                     if (fs.existsSync(oldFilePath)) {
@@ -140,18 +131,15 @@ class SellerController {
                 img = seller.img;
             }
 
-            // Обновление данных продавца
             await seller.update({
                 name: name || seller.name,
                 description: description || seller.description,
                 img: img
             });
 
-            // Получаем обновленные данные
             const updatedSeller = await Seller.findOne({ where: { id } });
             const sellerData = updatedSeller.toJSON();
             
-            // Добавляем полный URL к изображению
             if (sellerData.img) {
                 sellerData.img = `${req.protocol}://${req.get('host')}/static/${sellerData.img}`;
             }
@@ -172,7 +160,6 @@ class SellerController {
                 return next(ApiError.notFound('Продавец не найден'));
             }
 
-            // Удаляем файл изображения если он есть
             if (seller.img) {
                 const staticDir = path.resolve(__dirname, '..', 'static');
                 const filePath = path.join(staticDir, seller.img);

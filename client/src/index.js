@@ -4,7 +4,7 @@ import App from './App';
 import UserStore from "./store/UserStore";
 import DeviceStore from "./store/DeviceStore";
 import { createContext } from 'react';
-import { productStore } from './store/ProductStore'; // Импортируйте экземпляр
+import { productStore } from './store/ProductStore'; 
 
 export const Context = createContext(null);
 
@@ -13,7 +13,7 @@ root.render(
   <Context.Provider value={{
     user: new UserStore(),
     device: new DeviceStore(),
-    product: productStore // Используйте экземпляр напрямую
+    product: productStore 
   }}>
     <App />
   </Context.Provider>

@@ -1,11 +1,10 @@
-// routes.js
 import Admin from "./pages/Admin";
 import Auth from "./pages/Auth";
 import ProductPage from "./pages/ProductPage";
 import Shop from "./pages/Shop";
 import UserProfile from './pages/UserInfo';
 import AddProductPage from "./pages/AddProductPage";
-import FavoritesPage from "./pages/FavoritesPage"; // Импортируем страницу избранного
+import FavoritesPage from "./pages/FavoritesPage"; 
 import { ADMIN_ROUTE,ADD_PRODUCT_ROUTE, SHOP_ROUTE, PROFILE_ROUTE, LOGIN_ROUTE, REGISTRATION_ROUTE, PRODUCT_ROUTE, FAVORITES_ROUTE } from "./utils/const";
 
 export const authRoutes = [
@@ -22,7 +21,7 @@ export const authRoutes = [
         Component: AddProductPage
     },
     {
-        path: FAVORITES_ROUTE, // Добавляем маршрут для избранного
+        path: FAVORITES_ROUTE, 
         Component: FavoritesPage
     }
 ];

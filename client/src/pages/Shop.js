@@ -1,10 +1,9 @@
-// pages/Shop.js
 import React, { useEffect, useContext } from 'react';
 import ProductList from "../components/ProductList"; 
 import Pages from '../components/Pages';
 import { observer } from "mobx-react-lite";
 import { Context } from '../index';
-import '../css/pages/Shop.css'; // Убедитесь, что путь правильный
+import '../css/pages/Shop.css'; 
 
 const Shop = observer(() => {
     const { product } = useContext(Context);

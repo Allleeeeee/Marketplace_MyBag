@@ -1,4 +1,3 @@
-// components/modals/CitySelector.js
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Tabs, Tab, Spinner, Form, Alert } from 'react-bootstrap';
 
@@ -16,7 +15,6 @@ const CitySelectorModal = ({
     const [filteredCities, setFilteredCities] = useState([]);
     const [mapError, setMapError] = useState('');
 
-    // Фильтрация городов при поиске
     useEffect(() => {
         if (searchTerm) {
             const filtered = cities.filter(city => 
@@ -45,7 +43,6 @@ const CitySelectorModal = ({
         handleClose();
     };
 
-    // Правильные координаты для городов Беларуси (в процентах от размеров контейнера)
     const cityCoordinates = {
         'Минск': { top: '43%', left: '45%' },
         'Брест': { top: '68%', left: '25%' },
@@ -65,10 +62,8 @@ const CitySelectorModal = ({
         'Жлобин': { top: '52%', left: '62%' }
     };
 
-    // Функция для рендеринга кнопок городов на карте
     const renderCityButtons = () => {
         return Object.entries(cityCoordinates).map(([cityName, coords]) => {
-            // Показываем только те города, которые есть в списке
             if (!cities.includes(cityName)) return null;
 
             const isSelected = selectedCity === cityName;
@@ -141,7 +136,6 @@ const CitySelectorModal = ({
                     className="mb-4"
                     style={{ borderBottom: '2px solid #dee2e6' }}
                 >
-                    {/* Вкладка со списком городов */}
                     <Tab eventKey="list" title={
                         <span style={{ fontWeight: '600', fontSize: '14px' }}>
                             📋 Список городов
@@ -255,7 +249,6 @@ const CitySelectorModal = ({
                         </div>
                     </Tab>
 
-                    {/* Вкладка с картой */}
                     <Tab eventKey="map" title={
                         <span style={{ fontWeight: '600', fontSize: '14px' }}>
                             🗺️ Выбрать на карте
@@ -266,7 +259,6 @@ const CitySelectorModal = ({
                                 💡 <strong>Наведите курсор на город и кликните для выбора</strong>
                             </p>
                             
-                            {/* Контейнер карты */}
                             <div 
                                 style={{ 
                                     position: 'relative', 
@@ -285,7 +277,6 @@ const CitySelectorModal = ({
                             >
                                 {renderCityButtons()}
                                 
-                                {/* Легенда карты */}
                                 <div 
                                     style={{
                                         position: 'absolute',
@@ -303,7 +294,6 @@ const CitySelectorModal = ({
                                     🗺️ Карта Беларуси
                                 </div>
                                 
-                                {/* Подсказка */}
                                 <div 
                                     style={{
                                         position: 'absolute',

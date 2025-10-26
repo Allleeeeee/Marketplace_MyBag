@@ -8,7 +8,6 @@ class DeviceController {
         try {
             let { name, price, seller_id, type_id, description, info } = req.body;
             
-            // Проверка обязательных полей
             if (!name || !price || !seller_id || !type_id) {
                 return next(ApiError.badRequest('Не указаны все обязательные поля'));
             }
@@ -20,7 +19,6 @@ class DeviceController {
                 await img.mv(path.resolve(__dirname, '..', 'static', fileName));
             }
 
-            // Создаем продукт
             const product = await Product.create({ 
                 name, 
                 price, 
@@ -30,7 +28,6 @@ class DeviceController {
                 description
             });
 
-            // Обработка дополнительной информации
             if (info) {
                 try {
                     info = JSON.parse(info);

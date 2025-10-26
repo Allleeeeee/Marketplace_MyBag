@@ -58,9 +58,8 @@ async registration(req, res, next) {
         return res.json({token})
     }
 
-     // Метод для получения информации о пользователе
     async getUserInfo(req, res, next) {
-        const { id } = req.params; // Получаем ID пользователя из параметров
+        const { id } = req.params; 
         try {
             const user = await User.findOne({ where: { id } });
             if (!user) {
@@ -72,10 +71,9 @@ async registration(req, res, next) {
         }
     }
 
-    // Метод для изменения информации о пользователе
     async updateUser(req, res, next) {
-        const { id } = req.params; // Получаем ID пользователя из параметров
-        const { username, email, phone } = req.body; // Получаем новые данные из тела запроса
+        const { id } = req.params; 
+        const { username, email, phone } = req.body; 
         try {
             const user = await User.findOne({ where: { id } });
             if (!user) {
@@ -88,9 +86,8 @@ async registration(req, res, next) {
         }
     }
 
-    // Метод для удаления пользователя
    async deleteUser(req, res, next) {
-    const { id } = req.params; // Получаем ID пользователя из параметров
+    const { id } = req.params; 
     try {
         const user = await User.destroy({ where: { id } });
         if (!user) {

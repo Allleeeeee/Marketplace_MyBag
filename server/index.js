@@ -15,24 +15,21 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
-// Создаем папку static если ее нет
 const staticDir = path.resolve(__dirname, 'static');
 if (!fs.existsSync(staticDir)) {
     fs.mkdirSync(staticDir, { recursive: true });
     console.log('Static directory created:', staticDir);
 }
 
-// Раздача статических файлов
+
 app.use('/static', express.static(staticDir));
 app.use(express.static(staticDir));
 
 app.use(fileUpload({}))
 app.use('/api', router)
 
-// Обработка ошибок, последний Middleware
 app.use(errorHandler)
 
-// Тестовый маршрут для проверки статики
 app.get('/test-static', (req, res) => {
     res.json({ 
         message: 'Static test',

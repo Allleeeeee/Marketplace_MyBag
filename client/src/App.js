@@ -14,8 +14,8 @@ function App() {
     useEffect(() => {
         check()
             .then(data => {
-                user.setUser(data); // Установите данные пользователя
-                user.setIsAuth(true); // Установите статус авторизации
+                user.setUser(data); 
+                user.setIsAuth(true); 
             })
             .catch(error => {
                 console.error('Ошибка при проверке авторизации:', error);

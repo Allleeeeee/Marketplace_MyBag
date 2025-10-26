@@ -1,4 +1,3 @@
-// components/SearchBar.js
 import React, { useState, useContext, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
 import { Context } from '../index';

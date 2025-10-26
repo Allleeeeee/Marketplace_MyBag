@@ -1,4 +1,3 @@
-// pages/FavoritesPage.js
 import React, { useState, useEffect, useContext } from 'react';
 import { getUserFavorites, removeFromFavorite } from '../http/favoriteAPI';
 import { Context } from '../index';

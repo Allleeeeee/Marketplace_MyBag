@@ -1,4 +1,3 @@
-// components/ProductList.js
 import React, { useContext, useEffect, useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { Context } from '../index';
@@ -11,9 +10,8 @@ const ProductList = observer(() => {
     const { product } = useContext(Context);
     const [allProducts, setAllProducts] = useState([]);
     const [showAllProducts, setShowAllProducts] = useState(false);
-    const [showFilters, setShowFilters] = useState(true); // Фильтры всегда открыты
+    const [showFilters, setShowFilters] = useState(true); 
 
-    // Загрузка всех товаров
     const loadAllProducts = async () => {
         try {
             const response = await fetch('http://localhost:5000/api/prod?limit=1000');
@@ -26,26 +24,24 @@ const ProductList = observer(() => {
         }
     };
 
-    // Показать все товары
+
     const handleShowAllProducts = async () => {
         setShowAllProducts(true);
         await loadAllProducts();
     };
 
-    // Вернуться к поиску
+ 
     const handleBackToSearch = () => {
         setShowAllProducts(false);
         setAllProducts([]);
     };
 
-    // Автоматическая загрузка товаров при монтировании
     useEffect(() => {
         if (!product.products.length && !product.isLoading && !product.hasActiveSearch) {
             product.fetchProducts();
         }
     }, [product]);
 
-    // Состояние загрузки
     if (product.isLoading) {
         return (
             <div className="product-page-container">
@@ -64,8 +60,6 @@ const ProductList = observer(() => {
             </div>
         );
     }
-
-    // Состояние ошибки
     if (product.error) {
         return (
             <div className="product-page-container">
@@ -83,8 +77,6 @@ const ProductList = observer(() => {
             </div>
         );
     }
-
-    // Если показываем все товары (когда по поиску ничего не нашлось)
     if (showAllProducts) {
         return (
             <div className="product-page-container">
@@ -132,17 +124,12 @@ const ProductList = observer(() => {
 
     return (
         <div className="product-page-container">
-            {/* Поисковая строка сверху */}
             <SearchBar />
             
-            {/* Основной контент с фильтрами слева и товарами справа */}
             <div className="products-layout">
-                {/* Боковая панель с фильтрами */}
                 {showFilters && <FiltersSidebar />}
                 
-                {/* Основная область с товарами */}
                 <div className="products-content">
-                    {/* Заголовок */}
                     <div className="product-list-header">
                         <div className="header-content">
                             <h2 className="product-list-title">
@@ -161,11 +148,9 @@ const ProductList = observer(() => {
                         </div>
                     </div>
 
-                    {/* Список товаров */}
                     {product.products.length === 0 ? (
                         <div className="empty-container">
                             {product.hasActiveSearch ? (
-                                // Нет результатов поиска
                                 <div className="search-empty-content">
                                     <div className="search-empty-icon">🔍</div>
                                     <div className="search-empty-title">
@@ -182,7 +167,6 @@ const ProductList = observer(() => {
                                     </button>
                                 </div>
                             ) : (
-                                // Нет товаров в городе
                                 <div className="empty-city-container">
                                     <div className="empty-city-content">
                                         <div className="empty-city-icon">🏙️</div>
@@ -203,7 +187,6 @@ const ProductList = observer(() => {
                             )}
                         </div>
                     ) : (
-                        // Есть товары
                         <>
                             <div className="product-grid">
                                 {product.products.map(productItem => (
@@ -211,7 +194,6 @@ const ProductList = observer(() => {
                                 ))}
                             </div>
 
-                            {/* Пагинация */}
                             {product.totalCount > product.limit && (
                                 <div className="pagination-container">
                                     <div className="pagination-info">

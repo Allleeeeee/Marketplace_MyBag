@@ -1,5 +1,3 @@
-/* components/FiltersSidebar.css */
-
 :root {
     --yellow-primary: #FFD700;
     --yellow-dark: #E6C200;
@@ -239,7 +237,6 @@
     animation: spin 1s linear infinite;
 }
 
-/* Адаптивность */
 @media (max-width: 1024px) {
     .filters-sidebar {
         width: 100%;
@@ -248,7 +245,6 @@
     }
 }
 
-/* components/SearchBar.css */
 
 :root {
     --yellow-primary: #FFD700;
@@ -260,7 +256,6 @@
     --white: #FFFFFF;
 }
 
-/* Минималистичный контейнер */
 .search-bar-container {
     margin-bottom: 16px;
     background: var(--white);
@@ -269,7 +264,6 @@
     border: 1px solid var(--gray-very-light);
 }
 
-/* Круглая поисковая строка */
 .search-form {
     margin-bottom: 0;
 }
@@ -278,10 +272,10 @@
     display: flex;
     align-items: center;
     position: relative;
-    max-width: 920px; /* Уменьшена длина */
+    max-width: 920px;
     margin: 0 auto;
     background: var(--white);
-    border-radius: 50px; /* Более круглая форма */
+    border-radius: 50px; 
     border: 1px solid var(--gray-light);
     transition: all 0.2s ease;
     overflow: hidden;
@@ -302,7 +296,7 @@
 
 .search-input {
     flex: 1;
-    padding: 12px 100px 12px 40px; /* Уменьшены отступы */
+    padding: 12px 100px 12px 40px; 
     border: none;
     border-radius: 50px;
     font-size: 14px;
@@ -316,10 +310,10 @@
     color: var(--gray-light);
 }
 
-/* Крестик рядом с кнопкой */
+
 .clear-search-button {
     position: absolute;
-    right: 60px; /* Расположен слева от кнопки "Найти" */
+    right: 60px; 
     background: var(--gray-very-light);
     border: none;
     font-size: 14px;
@@ -347,7 +341,7 @@
     color: var(--gray-dark);
     border: none;
     padding: 8px 16px;
-    border-radius: 20px; /* Скругленная кнопка */
+    border-radius: 20px; 
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
@@ -381,7 +375,7 @@
     100% { transform: rotate(360deg); }
 }
 
-/* Минималистичное сообщение о городе */
+
 .no-city-message {
     background: var(--gray-very-light);
     border-radius: 6px;
@@ -395,7 +389,7 @@
     color: var(--gray-medium);
 }
 
-/* Адаптивность */
+
 @media (max-width: 768px) {
     .search-bar-container {
         padding: 12px;
@@ -424,7 +418,7 @@
 @media (max-width: 480px) {
     .search-input {
         padding: 12px 80px 12px 36px;
-        font-size: 16px; /* Увеличим шрифт для мобильных */
+        font-size: 16px; 
     }
 
     .clear-search-button {

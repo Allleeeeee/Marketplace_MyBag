@@ -1,4 +1,3 @@
-// components/CityDisplay.js
 import React, { useEffect, useState, useContext } from 'react';
 import { Context } from '../index';
 import { observer } from 'mobx-react-lite';
@@ -10,17 +9,14 @@ const CityDisplay = observer(() => {
     const [showModal, setShowModal] = useState(false);
     const [isDetectingLocation, setIsDetectingLocation] = useState(false);
 
-    // Загружаем города при монтировании
     useEffect(() => {
         const loadCities = async () => {
             await product.fetchCities();
             
-            // Если в store уже есть выбранный город, используем его
             if (product.selectedCity) {
                 return;
             }
             
-            // Иначе пытаемся восстановить из sessionStorage или использовать первый город
             const savedCity = sessionStorage.getItem('city');
             if (savedCity && product.cities.includes(savedCity)) {
                 await product.fetchProductsByCity(savedCity);
@@ -32,7 +28,6 @@ const CityDisplay = observer(() => {
         loadCities();
     }, [product]);
 
-    // Определение местоположения
     const getCurrentLocation = async () => {
         if (!navigator.geolocation) {
             console.log('Геолокация не поддерживается');

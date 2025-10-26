@@ -1,11 +1,9 @@
-/* css/pages/ProductPage.css */
 .product-page-container {
     background: #ffffff;
     min-height: 100vh;
     padding: 0;
 }
 
-/* Хедер страницы */
 .product-page-header {
     background: #f8f9fa;
     padding: 20px 0;
@@ -47,7 +45,6 @@
     font-weight: 600;
 }
 
-/* Основной контент */
 .product-main-content {
     max-width: 1200px;
     margin: 0 auto;
@@ -61,7 +58,6 @@
     align-items: start;
 }
 
-/* Левая колонка - изображение */
 .product-gallery {
     background: white;
     border-radius: 12px;
@@ -81,14 +77,12 @@
     object-fit: cover;
 }
 
-/* Правая колонка - информация */
 .product-details {
     display: flex;
     flex-direction: column;
     gap: 20px;
 }
 
-/* Карточка с основной информацией */
 .product-info-card {
     background: white;
     border-radius: 12px;
@@ -115,7 +109,6 @@
     font-weight: 500;
 }
 
-/* Цена и действия */
 .product-price-section {
     display: flex;
     justify-content: space-between;
@@ -166,7 +159,6 @@
     color: #333;
 }
 
-/* Информационные блоки */
 .info-grid {
     display: grid;
     gap: 16px;
@@ -195,7 +187,6 @@
     font-size: 0.95rem;
 }
 
-/* Характеристики */
 .characteristics-section {
     background: white;
     border-radius: 12px;
@@ -252,7 +243,6 @@
     font-weight: 500;
 }
 
-/* Кнопка связи */
 .contact-section {
     background: white;
     border-radius: 12px;
@@ -281,7 +271,6 @@
     box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
 }
 
-/* Состояния загрузки и ошибок */
 .loading-state, .error-state, .not-found-state {
     display: flex;
     justify-content: center;
@@ -322,7 +311,6 @@
     border-left: 4px solid #ffd700;
 }
 
-/* Адаптивность */
 @media (max-width: 1024px) {
     .product-layout {
         grid-template-columns: 1fr;

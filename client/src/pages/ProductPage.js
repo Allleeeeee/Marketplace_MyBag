@@ -1,4 +1,3 @@
-// pages/ProductPage.js
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { fetchOneProduct } from '../http/productAPI';
@@ -103,7 +102,7 @@ const ProductPage = observer(() => {
 
     return (
         <div className="product-page-container">
-            {/* Хедер страницы */}
+          
             <div className="product-page-header">
                 <div className="product-nav">
                     <button className="back-button" onClick={() => history.goBack()}>
@@ -113,10 +112,8 @@ const ProductPage = observer(() => {
                 </div>
             </div>
 
-            {/* Основной контент */}
             <div className="product-main-content">
                 <div className="product-layout">
-                    {/* Левая колонка - изображение */}
                     <div className="product-gallery">
                         <div className="main-image-container">
                             {product.img && (
@@ -133,9 +130,7 @@ const ProductPage = observer(() => {
                         </div>
                     </div>
 
-                    {/* Правая колонка - информация */}
                     <div className="product-details">
-                        {/* Основная информация */}
                         <div className="product-info-card">
                             <div className="product-title-section">
                                 <h1 className="product-title">{product.name}</h1>
@@ -175,7 +170,6 @@ const ProductPage = observer(() => {
                             </div>
                         </div>
 
-                        {/* Характеристики */}
                         {product.info && product.info.length > 0 && (
                             <div className="characteristics-section">
                                 <h3 className="section-title">Характеристики</h3>
@@ -190,7 +184,6 @@ const ProductPage = observer(() => {
                             </div>
                         )}
 
-                        {/* Кнопка связи */}
                         <div className="contact-section">
                             <button className="contact-button glow-effect">
                                 Связаться с продавцом

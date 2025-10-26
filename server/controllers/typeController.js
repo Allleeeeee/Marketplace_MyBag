@@ -1,4 +1,3 @@
-// controllers/typeController.js
 const { Type } = require('../models/models');
 const ApiError = require('../error/ApiError');
 

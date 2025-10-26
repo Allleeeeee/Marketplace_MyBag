@@ -1,4 +1,3 @@
-// pages/AddProductPage.js
 import React, { useState, useContext, useEffect } from 'react';
 import { Container, Row, Col, Card, Form, Button, Alert, Spinner } from 'react-bootstrap';
 import { useHistory } from 'react-router-dom';
@@ -38,7 +37,6 @@ const AddProductPage = observer(() => {
         { title: '', description: '' }
     ]);
 
-    // Загружаем типы товаров и города
     useEffect(() => {
         const loadData = async () => {
             try {
@@ -60,7 +58,6 @@ const AddProductPage = observer(() => {
         loadData();
     }, []);
 
-    // Проверяем/создаем продавца при загрузке компонента
     useEffect(() => {
         const initializeSeller = async () => {
             if (user.isAuth) {

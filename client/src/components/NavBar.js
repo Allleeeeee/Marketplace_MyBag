@@ -1,10 +1,9 @@
-// components/NavBar.js
 import React, { useContext } from "react";
 import { Context } from "../index";
 import { useHistory } from "react-router-dom";
 import { observer } from "mobx-react-lite";
 import { Nav, Navbar, Container, Button } from 'react-bootstrap';
-import { LOGIN_ROUTE,ADD_PRODUCT_ROUTE, ADMIN_ROUTE, FAVORITES_ROUTE, PROFILE_ROUTE } from "../utils/const"; // Добавьте FAVORITES_ROUTE
+import { LOGIN_ROUTE,ADD_PRODUCT_ROUTE, ADMIN_ROUTE, FAVORITES_ROUTE, PROFILE_ROUTE } from "../utils/const"; 
 import logo from '../assets/logo.png'; 
 import favorite from '../assets/Favorite.png'; 
 import CityDisplay from './CityDisplay'; 
@@ -37,7 +36,7 @@ const NavBar = () => {
                         <Nav>
                             <Button 
                                 variant="outline-dark" 
-                                onClick={() => history.push(FAVORITES_ROUTE)} // Используем history.push
+                                onClick={() => history.push(FAVORITES_ROUTE)}
                                 className="nav-button"
                             >
                                 <img 
@@ -49,7 +48,7 @@ const NavBar = () => {
                             </Button>
                             <Button 
                                 variant="outline-dark" 
-                                onClick={() => history.push(PROFILE_ROUTE)} // Используем history.push
+                                onClick={() => history.push(PROFILE_ROUTE)} 
                                 className="nav-button"
                             >
                                 <img 

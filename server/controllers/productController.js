@@ -1,4 +1,3 @@
-// controllers/productController.js
 const { v4: uuidv4 } = require('uuid');  
 const path = require('path');
 const { Product, ProductInfo, Seller, Type } = require('../models/models');
@@ -6,18 +5,12 @@ const ApiError = require('../error/ApiError');
 const sequelize = require('sequelize');
 const { Op } = require('sequelize');
 
-// Список городов Беларуси
 const BELARUS_CITIES = [
     'Минск', 'Гомель', 'Могилёв', 'Витебск', 'Гродно', 'Брест',
     'Барановичи', 'Борисов', 'Пинск', 'Орша', 'Мозырь', 'Солигорск',
     'Новополоцк', 'Лида', 'Молодечно', 'Полоцк', 'Жлобин', 'Светлогорск',
     'Речица', 'Жодино', 'Слуцк', 'Кобрин', 'Волковыск', 'Калинковичи',
-    'Сморгонь', 'Ошмяны', 'Рогачёв', 'Горки', 'Новогрудок', 'Вилейка',
-    'Березино', 'Дзержинск', 'Ивацевичи', 'Лунинец', 'Поставы', 'Столбцы',
-    'Щучин', 'Несвиж', 'Белоозёрск', 'Берёза', 'Микашевичи', 'Браслав',
-    'Клецк', 'Ляховичи', 'Старые Дороги', 'Червень', 'Крупки', 'Узда',
-    'Коссово', 'Мир', 'Негорелое', 'Ивье', 'Воложин', 'Дрогичин',
-    'Ганцевичи', 'Пружаны', 'Шклов', 'Кировск', 'Островец', 'Чериков'
+    'Сморгонь', 'Ошмяны', 'Рогачёв', 'Горки', 'Новогрудок', 'Вилейка'
 ];
 
 class ProductController {
@@ -30,7 +23,7 @@ class ProductController {
                 name, price, sellerId, typeId, city, priceType, priceText, currency 
             });
 
-            // Проверка обязательных полей
+            
             if (!name || !sellerId) {
                 return next(ApiError.badRequest('Необходимы поля: название и ID продавца'));
             }
@@ -39,18 +32,15 @@ class ProductController {
                 return next(ApiError.badRequest('Изображение товара обязательно'));
             }
 
-            // Проверяем город
             if (!city) {
                 return next(ApiError.badRequest('Город обязателен'));
             }
 
-            // Проверяем существование продавца
             const seller = await Seller.findOne({ where: { user_id: sellerId } });
             if (!seller) {
                 return next(ApiError.badRequest(`Пользователь с ID ${sellerId} не зарегистрирован как продавец. Сначала создайте профиль продавца в личном кабинете.`));
             }
 
-            // Проверяем существование типа товара
             let type = null;
             if (typeId) {
                 type = await Type.findOne({ where: { id: typeId } });
@@ -59,21 +49,17 @@ class ProductController {
                 }
             }
 
-            // Если тип не указан, используем тип по умолчанию (другое)
             const finalTypeId = type ? type.id : 1;
 
-            // Валидация типа цены
             const validPriceTypes = ['fixed', 'negotiable', 'custom'];
             const finalPriceType = validPriceTypes.includes(priceType) ? priceType : 'fixed';
 
-            // Валидация валюты
             const validCurrencies = ['USD', 'EUR', 'BYN', 'RUB'];
             const finalCurrency = validCurrencies.includes(currency) ? currency : 'USD';
 
             let finalPrice = null;
             let finalPriceText = '';
 
-            // Обработка цены в зависимости от типа
             if (finalPriceType === 'fixed') {
                 if (!price || parseFloat(price) <= 0) {
                     return next(ApiError.badRequest('Для фиксированной цены необходимо указать положительное число'));
@@ -89,12 +75,10 @@ class ProductController {
                 finalPriceText = priceText.trim();
             }
 
-            // Проверяем тип файла
             if (!img.mimetype.startsWith('image/')) {
                 return next(ApiError.badRequest('Можно загружать только изображения (JPG, PNG, GIF)'));
             }
 
-            // Проверяем размер файла (макс 5MB)
             if (img.size > 5 * 1024 * 1024) {
                 return next(ApiError.badRequest('Размер изображения не должен превышать 5MB'));
             }
@@ -102,7 +86,6 @@ class ProductController {
             let fileName = uuidv4() + ".jpg";
             await img.mv(path.resolve(__dirname, '..', 'static', fileName)); 
 
-            // Создаем товар
             const product = await Product.create({
                 name: name.trim(),
                 price: finalPrice,
@@ -116,7 +99,6 @@ class ProductController {
                 description: info?.description || ''
             });
 
-            // Добавляем характеристики если есть
             if (info) {
                 try {
                     if (typeof info === 'string') {
@@ -141,13 +123,11 @@ class ProductController {
                     }
                 } catch (parseError) {
                     console.error('Error parsing product info:', parseError);
-                    // Не прерываем выполнение из-за ошибки в характеристиках
                 }
             }
 
             console.log('Product created successfully:', product.id);
             
-            // Получаем полный продукт с информацией
             const fullProduct = await Product.findOne({
                 where: { id: product.id },
                 include: [
@@ -161,8 +141,7 @@ class ProductController {
         } catch (e) {
             console.error('Ошибка при создании продукта:', e); 
             
-            // Более точные сообщения об ошибках
-            if (e.code === '23503') { // Ошибка внешнего ключа
+            if (e.code === '23503') { 
                 if (e.detail && e.detail.includes('sellers')) {
                     return next(ApiError.badRequest('Ошибка: Пользователь не зарегистрирован как продавец. Сначала создайте профиль продавца в личном кабинете.'));
                 }
@@ -172,7 +151,7 @@ class ProductController {
                 return next(ApiError.badRequest('Ошибка связи данных. Проверьте корректность переданных ID.'));
             }
             
-            if (e.code === '23502') { // Ошибка NOT NULL
+            if (e.code === '23502') { 
                 const missingField = e.detail?.includes('name') ? 'название' :
                                    e.detail?.includes('city') ? 'город' : 'неизвестное поле';
                 return next(ApiError.badRequest(`Не заполнено обязательное поле: ${missingField}`));
@@ -211,7 +190,6 @@ class ProductController {
 
             let whereClause = {};
 
-            // Базовые фильтры
             if (sellerId) {
                 whereClause.seller_id = sellerId;
             }
@@ -224,14 +202,11 @@ class ProductController {
                 whereClause.city = city;
             }
 
-            // Фильтрация по цене с учетом товаров без цены
             if (minPrice || maxPrice || excludeNoPrice) {
                 const priceConditions = [];
                 
-                // Если указана минимальная цена
                 if (minPrice) {
                     const minPriceValue = parseFloat(minPrice);
-                    // Включаем товары с ценой >= minPrice И товары без цены (если не исключаем)
                     if (excludeNoPrice === 'true') {
                         priceConditions.push({
                             price: { [Op.gte]: minPriceValue }
@@ -247,7 +222,6 @@ class ProductController {
                     }
                 }
                 
-                // Если указана максимальная цена
                 if (maxPrice) {
                     const maxPriceValue = parseFloat(maxPrice);
                     priceConditions.push({
@@ -259,7 +233,6 @@ class ProductController {
                     });
                 }
                 
-                // Если нужно исключить товары без цены
                 if (excludeNoPrice === 'true' && !minPrice) {
                     priceConditions.push({
                         price: { 
@@ -269,15 +242,13 @@ class ProductController {
                     });
                 }
                 
-                // Объединяем условия цены
                 if (priceConditions.length > 0) {
                     whereClause[Op.and] = whereClause[Op.and] || [];
                     whereClause[Op.and].push(...priceConditions);
                 }
             }
 
-            // Сортировка
-            let order = [['createdAt', 'DESC']]; // по умолчанию новые сначала
+            let order = [['createdAt', 'DESC']]; 
             if (sort) {
                 switch (sort) {
                     case 'price_asc':
@@ -305,7 +276,6 @@ class ProductController {
                 }
             }
 
-            // Фильтрация по характеристикам
             let includeCharacteristics = [];
             if (characteristic) {
                 const characteristics = Array.isArray(characteristic) ? characteristic : [characteristic];
@@ -340,7 +310,7 @@ class ProductController {
                     { model: Type, attributes: ['id', 'name'] },
                     ...includeCharacteristics
                 ],
-                distinct: true // Важно для корректного подсчета при включении связанных моделей
+                distinct: true 
             }); 
 
             return res.json({
@@ -360,14 +330,12 @@ class ProductController {
         try {
             const { lat, lng } = req.query;
             
-            // Используем Nominatim (OpenStreetMap) для обратного геокодирования
             const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=ru`);
             const data = await response.json();
             
-            let city = 'Минск'; // значение по умолчанию
+            let city = 'Минск'; 
             
             if (data.address) {
-                // Пытаемся найти город в различных полях ответа
                 city = data.address.city || 
                        data.address.town || 
                        data.address.village || 
@@ -375,7 +343,6 @@ class ProductController {
                        'Минск';
             }
             
-            // Приводим к одному из городов Беларуси
             const belarusCities = BELARUS_CITIES;
             const normalizedCity = belarusCities.find(belCity => 
                 city.toLowerCase().includes(belCity.toLowerCase()) ||
@@ -474,7 +441,6 @@ class ProductController {
         }
     }
 
-    // Новый метод для получения всех типов товаров
     async getTypes(req, res) {
         try {
             const types = await Type.findAll({
@@ -535,7 +501,6 @@ class ProductController {
                 ]
             };
 
-            // Добавляем фильтры
             if (sellerId) {
                 whereClause.seller_id = sellerId;
             }
@@ -546,14 +511,11 @@ class ProductController {
                 whereClause.city = city;
             }
 
-            // Фильтрация по цене с учетом товаров без цены
             if (minPrice || maxPrice || excludeNoPrice) {
                 const priceConditions = [];
                 
-                // Если указана минимальная цена
                 if (minPrice) {
                     const minPriceValue = parseFloat(minPrice);
-                    // Включаем товары с ценой >= minPrice И товары без цены (если не исключаем)
                     if (excludeNoPrice === 'true') {
                         priceConditions.push({
                             price: { [Op.gte]: minPriceValue }
@@ -569,7 +531,6 @@ class ProductController {
                     }
                 }
                 
-                // Если указана максимальная цена
                 if (maxPrice) {
                     const maxPriceValue = parseFloat(maxPrice);
                     priceConditions.push({
@@ -581,7 +542,6 @@ class ProductController {
                     });
                 }
                 
-                // Если нужно исключить товары без цены
                 if (excludeNoPrice === 'true' && !minPrice) {
                     priceConditions.push({
                         price: { 
@@ -591,14 +551,12 @@ class ProductController {
                     });
                 }
                 
-                // Объединяем условия цены
                 if (priceConditions.length > 0) {
                     whereClause[Op.and] = whereClause[Op.and] || [];
                     whereClause[Op.and].push(...priceConditions);
                 }
             }
 
-            // Сортировка
             let order = [['createdAt', 'DESC']];
             if (sort) {
                 switch (sort) {
@@ -627,7 +585,6 @@ class ProductController {
                 }
             }
 
-            // Фильтрация по характеристикам
             let includeCharacteristics = [];
             if (characteristic) {
                 const characteristics = Array.isArray(characteristic) ? characteristic : [characteristic];
@@ -683,10 +640,8 @@ class ProductController {
         }
     }
 
-    // Новый метод для получения списка городов Беларуси
     async getBelarusCities(req, res) {
         try {
-            // Получаем уникальные города из базы
             const dbCities = await Product.findAll({
                 attributes: [[sequelize.fn('DISTINCT', sequelize.col('city')), 'city']],
                 raw: true
@@ -694,13 +649,11 @@ class ProductController {
 
             const uniqueDbCities = dbCities.map(city => city.city).filter(city => city);
             
-            // Объединяем с городами Беларуси и убираем дубликаты
             const allCities = [...new Set([...uniqueDbCities, ...BELARUS_CITIES])].sort();
             
             return res.json(allCities);
         } catch (error) {
             console.error('Ошибка при получении городов:', error);
-            // В случае ошибки возвращаем статичный список
             return res.json(BELARUS_CITIES.sort());
         }
     }
