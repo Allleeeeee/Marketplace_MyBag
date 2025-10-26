@@ -1,24 +1,36 @@
-/* UserInfo.css - Желто-черно-серая тема */
+/* UserInfo.css - Желто-черно-серая тема с белым фоном */
 .user-info-container {
     max-width: 1000px;
     margin: 0 auto;
     padding: 20px;
     font-family: 'Arial', sans-serif;
-    background: #1a1a1a;
+    background: #ffffff;
     min-height: 100vh;
 }
 
 .user-info-container h1 {
     text-align: center;
-    color: #ffd700;
+    color: #1a1a1a;
     margin-bottom: 30px;
     font-size: 2.2rem;
     text-transform: uppercase;
     letter-spacing: 1px;
+    position: relative;
+}
+
+.user-info-container h1::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 3px;
+    background: #ffd700;
 }
 
 .user-info-container h2 {
-    color: #ffd700;
+    color: #1a1a1a;
     margin-bottom: 20px;
     font-size: 1.5rem;
     border-bottom: 2px solid #ffd700;
@@ -32,22 +44,23 @@
 }
 
 .user-details, .seller-info {
-    background: #2d2d2d;
+    background: #f8f9fa;
     padding: 25px;
     border-radius: 12px;
-    border: 1px solid #444;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
 }
 
 .info-display p {
     margin: 12px 0;
     font-size: 1rem;
-    color: #e0e0e0;
+    color: #424242;
     line-height: 1.5;
 }
 
 .info-display strong {
-    color: #ffd700;
+    color: #1a1a1a;
+    font-weight: 600;
 }
 
 /* Стили для аватара продавца - в левом верхнем углу */
@@ -71,8 +84,8 @@
     border-radius: 50%;
     overflow: hidden;
     border: 3px solid #ffd700;
-    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
-    background: #1a1a1a;
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
+    background: #ffffff;
 }
 
 .seller-avatar {
@@ -92,12 +105,13 @@
     font-size: 0.9rem;
     font-weight: 600;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+    box-shadow: 0 2px 8px rgba(255, 215, 0, 0.2);
 }
 
 .edit-button:hover, .edit-profile-button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+    background: linear-gradient(135deg, #ffed4e 0%, #ffd700 100%);
 }
 
 .edit-profile-button {
@@ -119,7 +133,7 @@
 
 .form-group label {
     font-weight: 600;
-    color: #ffd700;
+    color: #1a1a1a;
     font-size: 0.9rem;
 }
 
@@ -127,12 +141,12 @@
 .seller-edit-form input,
 .seller-edit-form textarea {
     padding: 12px 14px;
-    border: 2px solid #444;
+    border: 2px solid #e0e0e0;
     border-radius: 6px;
     font-size: 0.9rem;
-    background: #1a1a1a;
-    color: #e0e0e0;
-    transition: border-color 0.3s ease;
+    background: #ffffff;
+    color: #424242;
+    transition: all 0.3s ease;
 }
 
 .info-edit input:focus,
@@ -140,7 +154,8 @@
 .seller-edit-form textarea:focus {
     outline: none;
     border-color: #ffd700;
-    box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.2);
+    box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.1);
+    background: #fffdf0;
 }
 
 .seller-edit-form textarea {
@@ -151,8 +166,14 @@
 
 .file-input {
     padding: 8px !important;
-    background: #1a1a1a !important;
-    color: #e0e0e0;
+    background: #ffffff !important;
+    color: #424242;
+    border: 2px dashed #e0e0e0 !important;
+}
+
+.file-input:hover {
+    border-color: #ffd700 !important;
+    background: #fffdf0 !important;
 }
 
 /* Кнопки действий формы */
@@ -172,17 +193,19 @@
     font-size: 0.9rem;
     font-weight: 600;
     transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(255, 215, 0, 0.2);
 }
 
 .save-button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+    background: linear-gradient(135deg, #ffed4e 0%, #ffd700 100%);
 }
 
 .cancel-button {
-    background: linear-gradient(135deg, #666 0%, #888 100%);
-    color: white;
-    border: none;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    color: #424242;
+    border: 2px solid #e0e0e0;
     padding: 10px 20px;
     border-radius: 20px;
     cursor: pointer;
@@ -192,27 +215,29 @@
 }
 
 .cancel-button:hover {
-    background: linear-gradient(135deg, #888 0%, #666 100%);
+    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
     transform: translateY(-2px);
+    border-color: #adb5bd;
 }
 
 /* Детали продавца */
 .seller-details {
-    background: #333;
+    background: #ffffff;
     padding: 20px;
     border-radius: 8px;
-    border: 1px solid #444;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
 }
 
 .seller-details p {
     margin: 10px 0;
     font-size: 1rem;
-    color: #e0e0e0;
+    color: #424242;
     line-height: 1.5;
 }
 
 .seller-details strong {
-    color: #ffd700;
+    color: #1a1a1a;
 }
 
 /* Адаптивность */
@@ -228,6 +253,7 @@
     .seller-profile {
         grid-template-columns: 1fr;
         gap: 20px;
+        text-align: center;
     }
     
     .image-wrapper {
@@ -247,25 +273,28 @@
 /* Дополнительные стили для улучшения внешнего вида */
 .user-details {
     border-left: 4px solid #ffd700;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
 }
 
 .seller-info {
     border-left: 4px solid #ffd700;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
 }
 
 /* Стили для файлового инпута */
 input[type="file"] {
-    background: #1a1a1a;
-    color: #e0e0e0;
-    border: 1px dashed #666;
+    background: #ffffff;
+    color: #424242;
+    border: 2px dashed #e0e0e0;
     padding: 8px;
     border-radius: 6px;
     cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 input[type="file"]:hover {
     border-color: #ffd700;
-    background: #222;
+    background: #fffdf0;
 }
 
 /* Плавные переходы */
@@ -275,5 +304,79 @@ input[type="file"]:hover {
 
 .user-details:hover, .seller-info:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Стили для рейтинга и других элементов */
+.rating {
+    color: #ffd700;
+    font-weight: bold;
+}
+
+.seller-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.stat-item {
+    background: #ffffff;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #1a1a1a;
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: 5px;
+}
+
+/* Стили для уведомлений и статусов */
+.success-message {
+    background: #d4edda;
+    color: #155724;
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid #c3e6cb;
+    margin-bottom: 20px;
+}
+
+.error-message {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid #f5c6cb;
+    margin-bottom: 20px;
+}
+
+/* Иконки */
+.icon {
+    color: #ffd700;
+    margin-right: 8px;
+}
+
+/* Заголовки секций */
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.section-title::before {
+    content: '';
+    width: 4px;
+    height: 20px;
+    background: #ffd700;
+    border-radius: 2px;
 }

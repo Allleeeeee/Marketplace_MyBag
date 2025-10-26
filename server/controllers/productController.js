@@ -4,6 +4,7 @@ const path = require('path');
 const { Product, ProductInfo, Seller, Type } = require('../models/models');
 const ApiError = require('../error/ApiError');
 const sequelize = require('sequelize');
+const { Op } = require('sequelize');
 
 // Список городов Беларуси
 const BELARUS_CITIES = [
@@ -190,71 +191,204 @@ class ProductController {
     }
 
     async getAll(req, res) {
-        let { sellerId, typeId, city, limit, page } = req.query;
-        page = page || 1;
-        limit = limit || 9;
-        let offset = page * limit - limit; 
+        try {
+            let { 
+                sellerId, 
+                typeId, 
+                city, 
+                limit, 
+                page, 
+                minPrice, 
+                maxPrice, 
+                sort,
+                excludeNoPrice,
+                characteristic 
+            } = req.query;
+            
+            page = page || 1;
+            limit = limit || 9;
+            let offset = page * limit - limit; 
 
-        let products;
-        let whereClause = {};
+            let whereClause = {};
 
-        if (sellerId) {
-            whereClause.seller_id = sellerId;
+            // Базовые фильтры
+            if (sellerId) {
+                whereClause.seller_id = sellerId;
+            }
+
+            if (typeId) {
+                whereClause.type_id = typeId;
+            }
+
+            if (city) {
+                whereClause.city = city;
+            }
+
+            // Фильтрация по цене с учетом товаров без цены
+            if (minPrice || maxPrice || excludeNoPrice) {
+                const priceConditions = [];
+                
+                // Если указана минимальная цена
+                if (minPrice) {
+                    const minPriceValue = parseFloat(minPrice);
+                    // Включаем товары с ценой >= minPrice И товары без цены (если не исключаем)
+                    if (excludeNoPrice === 'true') {
+                        priceConditions.push({
+                            price: { [Op.gte]: minPriceValue }
+                        });
+                    } else {
+                        priceConditions.push({
+                            [Op.or]: [
+                                { price: { [Op.gte]: minPriceValue } },
+                                { price: null },
+                                { price: 0 }
+                            ]
+                        });
+                    }
+                }
+                
+                // Если указана максимальная цена
+                if (maxPrice) {
+                    const maxPriceValue = parseFloat(maxPrice);
+                    priceConditions.push({
+                        [Op.or]: [
+                            { price: { [Op.lte]: maxPriceValue } },
+                            { price: null },
+                            { price: 0 }
+                        ]
+                    });
+                }
+                
+                // Если нужно исключить товары без цены
+                if (excludeNoPrice === 'true' && !minPrice) {
+                    priceConditions.push({
+                        price: { 
+                            [Op.ne]: null,
+                            [Op.gt]: 0
+                        }
+                    });
+                }
+                
+                // Объединяем условия цены
+                if (priceConditions.length > 0) {
+                    whereClause[Op.and] = whereClause[Op.and] || [];
+                    whereClause[Op.and].push(...priceConditions);
+                }
+            }
+
+            // Сортировка
+            let order = [['createdAt', 'DESC']]; // по умолчанию новые сначала
+            if (sort) {
+                switch (sort) {
+                    case 'price_asc':
+                        order = [
+                            ['price', 'ASC NULLS LAST'],
+                            ['createdAt', 'DESC']
+                        ];
+                        break;
+                    case 'price_desc':
+                        order = [
+                            ['price', 'DESC NULLS LAST'],
+                            ['createdAt', 'DESC']
+                        ];
+                        break;
+                    case 'name_asc':
+                        order = [['name', 'ASC']];
+                        break;
+                    case 'name_desc':
+                        order = [['name', 'DESC']];
+                        break;
+                    case 'newest':
+                    default:
+                        order = [['createdAt', 'DESC']];
+                        break;
+                }
+            }
+
+            // Фильтрация по характеристикам
+            let includeCharacteristics = [];
+            if (characteristic) {
+                const characteristics = Array.isArray(characteristic) ? characteristic : [characteristic];
+                includeCharacteristics = [{
+                    model: ProductInfo,
+                    as: 'info',
+                    where: {
+                        [Op.or]: characteristics.map(char => {
+                            const [title, description] = char.split(':');
+                            return {
+                                title: title,
+                                description: description
+                            };
+                        })
+                    },
+                    required: true
+                }];
+            } else {
+                includeCharacteristics = [{
+                    model: ProductInfo,
+                    as: 'info',
+                    required: false
+                }];
+            }
+
+            const products = await Product.findAndCountAll({ 
+                where: whereClause, 
+                limit, 
+                offset,
+                order,
+                include: [
+                    { model: Type, attributes: ['id', 'name'] },
+                    ...includeCharacteristics
+                ],
+                distinct: true // Важно для корректного подсчета при включении связанных моделей
+            }); 
+
+            return res.json({
+                rows: products.rows,
+                count: products.count,
+                currentPage: parseInt(page),
+                totalPages: Math.ceil(products.count / limit)
+            }); 
+
+        } catch (error) {
+            console.error('Ошибка при получении товаров:', error);
+            return res.status(500).json({ message: 'Ошибка при получении товаров' });
         }
-
-        if (typeId) {
-            whereClause.type_id = typeId;
-        }
-
-        if (city) {
-            whereClause.city = city;
-        }
-
-        products = await Product.findAndCountAll({ 
-            where: whereClause, 
-            limit, 
-            offset,
-            include: [
-                { model: Type, attributes: ['id', 'name'] }
-            ]
-        }); 
-
-        return res.json(products); 
     }
-// controllers/productController.js - добавить метод
 
-async geocode(req, res) {
-    try {
-        const { lat, lng } = req.query;
-        
-        // Используем Nominatim (OpenStreetMap) для обратного геокодирования
-        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=ru`);
-        const data = await response.json();
-        
-        let city = 'Минск'; // значение по умолчанию
-        
-        if (data.address) {
-            // Пытаемся найти город в различных полях ответа
-            city = data.address.city || 
-                   data.address.town || 
-                   data.address.village || 
-                   data.address.municipality || 
-                   'Минск';
+    async geocode(req, res) {
+        try {
+            const { lat, lng } = req.query;
+            
+            // Используем Nominatim (OpenStreetMap) для обратного геокодирования
+            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=ru`);
+            const data = await response.json();
+            
+            let city = 'Минск'; // значение по умолчанию
+            
+            if (data.address) {
+                // Пытаемся найти город в различных полях ответа
+                city = data.address.city || 
+                       data.address.town || 
+                       data.address.village || 
+                       data.address.municipality || 
+                       'Минск';
+            }
+            
+            // Приводим к одному из городов Беларуси
+            const belarusCities = BELARUS_CITIES;
+            const normalizedCity = belarusCities.find(belCity => 
+                city.toLowerCase().includes(belCity.toLowerCase()) ||
+                belCity.toLowerCase().includes(city.toLowerCase())
+            ) || 'Минск';
+            
+            return res.json({ city: normalizedCity });
+        } catch (error) {
+            console.error('Ошибка геокодирования:', error);
+            return res.json({ city: 'Минск' });
         }
-        
-        // Приводим к одному из городов Беларуси
-        const belarusCities = BELARUS_CITIES;
-        const normalizedCity = belarusCities.find(belCity => 
-            city.toLowerCase().includes(belCity.toLowerCase()) ||
-            belCity.toLowerCase().includes(city.toLowerCase())
-        ) || 'Минск';
-        
-        return res.json({ city: normalizedCity });
-    } catch (error) {
-        console.error('Ошибка геокодирования:', error);
-        return res.json({ city: 'Минск' });
     }
-}
+
     async getOne(req, res) {
         try {
             const { id } = req.params; 
@@ -353,84 +487,202 @@ async geocode(req, res) {
         }
     }
 
+    async search(req, res) {
+        try {
+            let { 
+                q: searchQuery, 
+                sellerId, 
+                typeId, 
+                city, 
+                limit, 
+                page,
+                minPrice,
+                maxPrice,
+                sort,
+                excludeNoPrice,
+                characteristic
+            } = req.query;
+            
+            page = page || 1;
+            limit = limit || 9;
+            let offset = page * limit - limit;
 
-async search(req, res) {
-    try {
-        let { q: searchQuery, sellerId, typeId, city, limit, page } = req.query;
-        page = page || 1;
-        limit = limit || 9;
-        let offset = page * limit - limit;
+            console.log('Поисковый запрос:', searchQuery);
 
-        console.log('Поисковый запрос:', searchQuery);
+            if (!searchQuery || searchQuery.trim() === '') {
+                return res.status(400).json({ message: 'Поисковый запрос не может быть пустым' });
+            }
 
-        if (!searchQuery || searchQuery.trim() === '') {
-            return res.status(400).json({ message: 'Поисковый запрос не может быть пустым' });
-        }
-
-        const searchTerm = searchQuery.trim().toLowerCase();
-        
-        let whereClause = {};
-
-        // Если есть поисковый запрос, добавляем условия поиска
-        if (searchTerm) {
-            whereClause = {
-                [sequelize.Op.or]: [
+            const searchTerm = searchQuery.trim().toLowerCase();
+            
+            let whereClause = {
+                [Op.or]: [
                     { 
                         name: { 
-                            [sequelize.Op.iLike]: `%${searchTerm}%` 
+                            [Op.iLike]: `%${searchTerm}%` 
                         } 
                     },
                     { 
                         description: { 
-                            [sequelize.Op.iLike]: `%${searchTerm}%` 
+                            [Op.iLike]: `%${searchTerm}%` 
                         } 
                     },
                     { 
                         price_text: { 
-                            [sequelize.Op.iLike]: `%${searchTerm}%` 
+                            [Op.iLike]: `%${searchTerm}%` 
                         } 
                     }
                 ]
             };
+
+            // Добавляем фильтры
+            if (sellerId) {
+                whereClause.seller_id = sellerId;
+            }
+            if (typeId) {
+                whereClause.type_id = typeId;
+            }
+            if (city) {
+                whereClause.city = city;
+            }
+
+            // Фильтрация по цене с учетом товаров без цены
+            if (minPrice || maxPrice || excludeNoPrice) {
+                const priceConditions = [];
+                
+                // Если указана минимальная цена
+                if (minPrice) {
+                    const minPriceValue = parseFloat(minPrice);
+                    // Включаем товары с ценой >= minPrice И товары без цены (если не исключаем)
+                    if (excludeNoPrice === 'true') {
+                        priceConditions.push({
+                            price: { [Op.gte]: minPriceValue }
+                        });
+                    } else {
+                        priceConditions.push({
+                            [Op.or]: [
+                                { price: { [Op.gte]: minPriceValue } },
+                                { price: null },
+                                { price: 0 }
+                            ]
+                        });
+                    }
+                }
+                
+                // Если указана максимальная цена
+                if (maxPrice) {
+                    const maxPriceValue = parseFloat(maxPrice);
+                    priceConditions.push({
+                        [Op.or]: [
+                            { price: { [Op.lte]: maxPriceValue } },
+                            { price: null },
+                            { price: 0 }
+                        ]
+                    });
+                }
+                
+                // Если нужно исключить товары без цены
+                if (excludeNoPrice === 'true' && !minPrice) {
+                    priceConditions.push({
+                        price: { 
+                            [Op.ne]: null,
+                            [Op.gt]: 0
+                        }
+                    });
+                }
+                
+                // Объединяем условия цены
+                if (priceConditions.length > 0) {
+                    whereClause[Op.and] = whereClause[Op.and] || [];
+                    whereClause[Op.and].push(...priceConditions);
+                }
+            }
+
+            // Сортировка
+            let order = [['createdAt', 'DESC']];
+            if (sort) {
+                switch (sort) {
+                    case 'price_asc':
+                        order = [
+                            ['price', 'ASC NULLS LAST'],
+                            ['createdAt', 'DESC']
+                        ];
+                        break;
+                    case 'price_desc':
+                        order = [
+                            ['price', 'DESC NULLS LAST'],
+                            ['createdAt', 'DESC']
+                        ];
+                        break;
+                    case 'name_asc':
+                        order = [['name', 'ASC']];
+                        break;
+                    case 'name_desc':
+                        order = [['name', 'DESC']];
+                        break;
+                    case 'newest':
+                    default:
+                        order = [['createdAt', 'DESC']];
+                        break;
+                }
+            }
+
+            // Фильтрация по характеристикам
+            let includeCharacteristics = [];
+            if (characteristic) {
+                const characteristics = Array.isArray(characteristic) ? characteristic : [characteristic];
+                includeCharacteristics = [{
+                    model: ProductInfo,
+                    as: 'info',
+                    where: {
+                        [Op.or]: characteristics.map(char => {
+                            const [title, description] = char.split(':');
+                            return {
+                                title: title,
+                                description: description
+                            };
+                        })
+                    },
+                    required: true
+                }];
+            } else {
+                includeCharacteristics = [{
+                    model: ProductInfo,
+                    as: 'info',
+                    required: false
+                }];
+            }
+
+            console.log('Условия поиска:', whereClause);
+
+            const products = await Product.findAndCountAll({ 
+                where: whereClause, 
+                limit, 
+                offset,
+                order,
+                include: [
+                    { model: Type, attributes: ['id', 'name'] },
+                    ...includeCharacteristics
+                ],
+                distinct: true
+            });
+
+            console.log('Найдено товаров:', products.count);
+
+            return res.json({
+                rows: products.rows,
+                count: products.count,
+                currentPage: parseInt(page),
+                totalPages: Math.ceil(products.count / limit),
+                searchQuery: searchTerm
+            });
+
+        } catch (error) {
+            console.error('Ошибка при поиске товаров:', error);
+            return res.status(500).json({ message: 'Ошибка при выполнении поиска' });
         }
-
-        // Добавляем фильтры
-        if (sellerId) {
-            whereClause.seller_id = sellerId;
-        }
-        if (typeId) {
-            whereClause.type_id = typeId;
-        }
-        if (city) {
-            whereClause.city = city;
-        }
-
-        console.log('Условия поиска:', whereClause);
-
-        const products = await Product.findAndCountAll({ 
-            where: whereClause, 
-            limit, 
-            offset,
-            include: [
-                { model: Type, attributes: ['id', 'name'] }
-            ]
-        });
-
-        console.log('Найдено товаров:', products.count);
-
-        return res.json({
-            products: products.rows,
-            totalCount: products.count,
-            currentPage: parseInt(page),
-            totalPages: Math.ceil(products.count / limit),
-            searchQuery: searchTerm
-        });
-
-    } catch (error) {
-        console.error('Ошибка при поиске товаров:', error);
-        return res.status(500).json({ message: 'Ошибка при выполнении поиска' });
     }
-}
+
     // Новый метод для получения списка городов Беларуси
     async getBelarusCities(req, res) {
         try {

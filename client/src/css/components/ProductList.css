@@ -294,7 +294,7 @@
     cursor: not-allowed;
 }
 
-/* Адаптивность */
+
 @media (max-width: 768px) {
     .product-list-container {
         padding: 15px;
@@ -357,8 +357,40 @@
         font-size: 48px;
     }
 }
+/* components/ProductList.css */
+.product-page-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
 
-/* components/ProductList.css - добавьте эти стили */
+.products-layout {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+    margin-top: 0;
+}
+
+.products-content {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Остальные стили остаются прежними */
+
+/* components/FiltersSidebar.css */
+.filters-sidebar {
+    background: var(--gray-very-light);
+    border-radius: 8px;
+    padding: 16px;
+    width: 280px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 20px;
+}
+
+/* Остальные стили для фильтров из предыдущего ответа */
+
 
 .all-products-notice {
     background: var(--yellow-light);
@@ -421,7 +453,7 @@
     transform: translateY(-1px);
 }
 
-/* Адаптивность */
+
 @media (max-width: 768px) {
     .all-products-notice {
         padding: 16px;

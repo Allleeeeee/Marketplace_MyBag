@@ -69,13 +69,7 @@ const FavoritesPage = observer(() => {
 
     return (
         <div className="favorites-container">
-            <div className="favorites-header">
-                <h1 className="favorites-title">Избранное</h1>
-                <p className="favorites-subtitle">
-                    {favorites.length} товар{favorites.length === 1 ? '' : favorites.length > 1 && favorites.length < 5 ? 'а' : 'ов'} в избранном
-                </p>
-            </div>
-
+           
             {favorites.length === 0 ? (
                 <div className="empty-favorites">
                     <div className="empty-icon">♥</div>

@@ -1,5 +1,5 @@
 // components/SearchBar.js
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
 import { Context } from '../index';
 import '../css/components/SearchBar.css';
@@ -14,13 +14,11 @@ const SearchBar = observer(() => {
         e.preventDefault();
         
         if (!searchQuery.trim()) {
-            // Если поисковый запрос пустой, сбрасываем поиск
             await product.clearSearch();
             return;
         }
 
         setIsSearching(true);
-        
         try {
             await product.searchProducts(searchQuery.trim());
         } catch (error) {
@@ -44,20 +42,7 @@ const SearchBar = observer(() => {
 
     return (
         <div className="search-bar-container">
-            <div className="search-header">
-                <h2 className="search-title">
-                    {product.selectedCity 
-                        ? `Поиск товаров в ${product.selectedCity}`
-                        : 'Поиск товаров'
-                    }
-                </h2>
-                <div className="search-subtitle">
-                    {product.selectedCity 
-                        ? `Ищите по названию, описанию или цене`
-                        : 'Выберите город для поиска товаров'
-                    }
-                </div>
-            </div>
+           
 
             <form onSubmit={handleSearch} className="search-form">
                 <div className="search-input-group">
