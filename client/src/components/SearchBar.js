@@ -9,7 +9,6 @@ const SearchBar = observer(() => {
     const [searchQuery, setSearchQuery] = useState('');
     const [isSearching, setIsSearching] = useState(false);
 
-    // Поиск товаров
     const handleSearch = async (e) => {
         e.preventDefault();
         
@@ -28,7 +27,6 @@ const SearchBar = observer(() => {
         }
     };
 
-    // Очистка поиска
     const clearSearch = async () => {
         setSearchQuery('');
         await product.clearSearch();
@@ -42,8 +40,6 @@ const SearchBar = observer(() => {
 
     return (
         <div className="search-bar-container">
-           
-
             <form onSubmit={handleSearch} className="search-form">
                 <div className="search-input-group">
                     <div className="search-icon">🔍</div>
@@ -84,35 +80,10 @@ const SearchBar = observer(() => {
                 </div>
             </form>
 
-            {/* Информация о текущем поиске */}
-            {product.hasActiveSearch && (
-                <div className="search-results-info">
-                    <div className="results-main">
-                        <div className="results-count">
-                            Найдено: <strong>{product.totalCount}</strong> товаров
-                        </div>
-                        <div className="search-context">
-                            в <strong>{product.selectedCity}</strong>
-                        </div>
-                    </div>
-                    <div className="search-query">
-                        По запросу: "<strong>{product.currentSearchQuery}</strong>"
-                    </div>
-                    <button 
-                        onClick={clearSearch}
-                        className="clear-search-link"
-                    >
-                        Сбросить поиск
-                    </button>
-                </div>
-            )}
-
-            {/* Сообщение если город не выбран */}
             {!product.selectedCity && (
                 <div className="no-city-message">
-                    <div className="no-city-icon">📍</div>
                     <div className="no-city-text">
-                        <strong>Выберите город выше</strong> для поиска товаров
+                        Выберите город для поиска товаров
                     </div>
                 </div>
             )}

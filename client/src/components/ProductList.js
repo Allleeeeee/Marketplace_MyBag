@@ -91,18 +91,7 @@ const ProductList = observer(() => {
                 <SearchBar />
                 <div className="products-layout">
                     <div className="products-content">
-                        <div className="product-list-header">
-                            <div className="header-content">
-                                <h2 className="product-list-title">
-                                    Все товары
-                                </h2>
-                                {allProducts.length > 0 && (
-                                    <div className="product-count-badge">
-                                        {allProducts.length}
-                                    </div>
-                                )}
-                            </div>
-                        </div>
+                       
 
                         <div className="all-products-notice">
                             <div className="notice-content">

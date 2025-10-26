@@ -1,38 +1,284 @@
-
 .navbar {
-    background-color: #ffff00; /* Цвет фона навбара */
-    padding: 10px 20px; /* Отступы */
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+    padding: 12px 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid #e6c200;
 }
 
 .navbar-brand {
-    font-size: 24px; /* Размер шрифта для логотипа */
-    color: #333; /* Цвет текста */
+    font-size: 26px;
+    color: #1a1a1a;
+    font-weight: 700;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: color 0.3s ease;
+}
+
+.navbar-brand:hover {
+    color: #000000;
 }
 
 .navbar img {
-    width: 40px; /* Размер изображений */
-    height: 40px;
-    margin-right: 10px; /* Отступ между изображениями и текстом */
+    width: 42px;
+    height: 42px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    transition: transform 0.3s ease;
+}
+
+.navbar img:hover {
+    transform: scale(1.05);
 }
 
 .navbar .nav-button {
-    margin-left: 10px; /* Отступ между кнопками */
+    margin-left: 15px;
+    background: rgba(255, 255, 255, 0.9);
+    color: #1a1a1a;
+    border: 2px solid transparent;
+    padding: 8px 20px;
+    border-radius: 25px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.navbar .nav-button:hover {
+    background: #ffffff;
+    border-color: #1a1a1a;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.navbar .nav-button:active {
+    transform: translateY(0);
+}
+
+/* Контейнер для навбара */
+.navbar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Левая часть навбара (лого и навигация) */
+.navbar-left {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+/* Правая часть навбара (кнопки) */
+.navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Навигационные ссылки */
+.nav-links {
+    display: flex;
+    gap: 25px;
+    align-items: center;
+}
+
+.nav-link {
+    color: #1a1a1a;
+    text-decoration: none;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.nav-link:hover {
+    background: rgba(255, 255, 255, 0.3);
+    color: #000000;
+}
+
+.nav-link.active {
+    background: rgba(255, 255, 255, 0.4);
+    color: #000000;
+}
+
+/* Иконки в навбаре */
+.nav-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+/* Мобильное меню */
+.navbar-toggle {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #1a1a1a;
+    cursor: pointer;
+    padding: 5px;
 }
 
 /* Медиа-запросы для адаптивного интерфейса */
 @media (max-width: 768px) {
-    .navbarimg {
-        display: none; /* Скрыть изображения на мобильных устройствах */
+    .navbar {
+        padding: 10px 15px;
     }
-
-    .navbar .nav-text {
-        display: inline; /* Показать текст на мобильных устройствах */
-        margin-left: 10px; /* Отступ для текста */
+    
+    .navbar-container {
+        flex-wrap: wrap;
+    }
+    
+    .navbar-toggle {
+        display: block;
+    }
+    
+    .nav-links {
+        display: none;
+        width: 100%;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    
+    .nav-links.mobile-open {
+        display: flex;
+    }
+    
+    .navbar-right {
+        display: none;
+    }
+    
+    .navbar-right.mobile-open {
+        display: flex;
+        width: 100%;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    
+    .navbar .nav-button {
+        margin-left: 0;
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+    }
+    
+    .navbar img {
+        width: 36px;
+        height: 36px;
+    }
+    
+    .navbar-brand {
+        font-size: 22px;
+    }
+    
+    .nav-text {
+        display: inline;
+        margin-left: 8px;
     }
 }
 
 @media (min-width: 769px) {
-    .navbar .nav-text {
-        display: none; /* Скрыть текст на больших экранах */
+    .nav-text {
+        display: inline;
+        margin-left: 8px;
     }
+    
+    .navbar .nav-button .nav-text {
+        margin-left: 0;
+    }
+}
+
+/* Анимации */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.navbar {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Дополнительные стили для улучшения UX */
+.navbar .nav-button.primary {
+    background: #1a1a1a;
+    color: #ffd700;
+}
+
+.navbar .nav-button.primary:hover {
+    background: #000000;
+    border-color: #000000;
+}
+
+/* Бейдж для уведомлений */
+.nav-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #ff4444;
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+/* Выпадающее меню */
+.nav-dropdown {
+    position: relative;
+}
+
+.nav-dropdown-content {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    min-width: 200px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    z-index: 1000;
+    margin-top: 10px;
+}
+
+.nav-dropdown:hover .nav-dropdown-content {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+.nav-dropdown-content .nav-link {
+    display: block;
+    padding: 12px 16px;
+    border-radius: 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.nav-dropdown-content .nav-link:last-child {
+    border-bottom: none;
+}
+
+.nav-dropdown-content .nav-link:hover {
+    background: #fff9c4;
 }
