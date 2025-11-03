@@ -36,13 +36,13 @@ export const getSellerInfo = async (sellerId) => {
     const { data } = await $authHost.get(`api/seller/${sellerId}`);
     return data;};
 
-    // Функция для обновления пользователя
+
 export const updateUser = async (userId, userData) => {
     const { data } = await $authHost.put(`api/user/${userId}`, userData);
     return data;
 };
 
-// Функция для обновления продавца
+
 export const updateSeller = async (sellerId, sellerData) => {
     try {
         const response = await $authHost.put(`api/seller/${sellerId}`, sellerData, {

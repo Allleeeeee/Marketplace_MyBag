@@ -75,20 +75,6 @@ const Review = sequelize.define('review', {
 });
 
 
-const Device = sequelize.define('device', {
-    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    name: { type: DataTypes.STRING, allowNull: false },
-    price: { type: DataTypes.INTEGER, allowNull: false },
-    rating: { type: DataTypes.INTEGER, defaultValue: 0 },
-    img: { type: DataTypes.STRING, allowNull: false }
-});
-
-const DeviceInfo = sequelize.define('device_info', {
-    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    device_id: { type: DataTypes.INTEGER, allowNull: false },
-    title: { type: DataTypes.STRING, allowNull: false },
-    description: { type: DataTypes.STRING, allowNull: false }
-});
 
 User.hasOne(Seller, { foreignKey: 'user_id' });
 Seller.belongsTo(User, { foreignKey: 'user_id' });
@@ -122,8 +108,6 @@ Favorite.belongsTo(Product, { foreignKey: 'product_id' });
 Product.belongsTo(Type, { foreignKey: 'type_id' });
 Type.hasMany(Product, { foreignKey: 'type_id' });
 
-Device.hasMany(DeviceInfo, { foreignKey: 'device_id', as: 'info' });
-DeviceInfo.belongsTo(Device, { foreignKey: 'device_id' });
 
 module.exports = { 
     User, 
@@ -134,6 +118,5 @@ module.exports = {
     ProductInfo, 
     Favorite, 
     Review, 
-    Device, 
-    DeviceInfo
+  
 };

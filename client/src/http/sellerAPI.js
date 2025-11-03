@@ -1,4 +1,4 @@
-// http/sellerAPI.js
+
 import { $authHost } from "./index";
 
 export const createSeller = async (sellerData) => {
@@ -12,7 +12,7 @@ export const getSellerByUserId = async (userId) => {
         return data;
     } catch (error) {
         if (error.response?.status === 404) {
-            return null; // Продавец не найден - это нормально
+            return null; 
         }
         throw error;
     }
@@ -22,10 +22,10 @@ export const checkOrCreateSeller = async (userId, sellerName = 'Мой мага�
     try {
         console.log('Checking seller for user:', userId);
         
-        // Пытаемся найти существующего продавца
+        
         let seller = await getSellerByUserId(userId);
         
-        // Если продавец не найден, создаем нового
+        
         if (!seller) {
             console.log('Seller not found, creating new one...');
             seller = await createSeller({

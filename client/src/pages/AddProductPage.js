@@ -22,16 +22,15 @@ const AddProductPage = observer(() => {
     const [citiesLoading, setCitiesLoading] = useState(true);
     
     const [formData, setFormData] = useState({
-        name: '',
-        price: '',
-        description: '',
-        city: '',
-        typeId: '',
-        img: null,
-        priceType: 'fixed',
-        priceText: '',
-        currency: 'USD'
-    });
+    name: '',
+    price: '',
+    description: '',
+    city: '',
+    typeId: '',
+    img: null,
+    priceType: 'fixed',
+    priceText: ''
+});
     
     const [characteristics, setCharacteristics] = useState([
         { title: '', description: '' }
@@ -195,7 +194,6 @@ const AddProductPage = observer(() => {
             productData.append('description', formData.description.trim());
             productData.append('priceType', formData.priceType);
             productData.append('priceText', formData.priceText.trim());
-            productData.append('currency', formData.currency);
             productData.append('img', formData.img);
             
             const validCharacteristics = characteristics.filter(char => 
@@ -210,17 +208,16 @@ const AddProductPage = observer(() => {
             
             setSuccess('Товар успешно добавлен! Перенаправляем в магазин...');
             
-            setFormData({
-                name: '',
-                price: '',
-                description: '',
-                city: '',
-                typeId: '',
-                img: null,
-                priceType: 'fixed',
-                priceText: '',
-                currency: 'USD'
-            });
+           setFormData({
+    name: '',
+    price: '',
+    description: '',
+    city: '',
+    typeId: '',
+    img: null,
+    priceType: 'fixed',
+    priceText: ''
+});
             setCharacteristics([{ title: '', description: '' }]);
             document.getElementById('productImage').value = '';
             
@@ -246,67 +243,50 @@ const AddProductPage = observer(() => {
     };
 
     const renderPriceField = () => {
-        switch (formData.priceType) {
-            case 'fixed':
-                return (
-                    <Row>
-                        <Col md={8}>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Цена <span className="text-danger">*</span></Form.Label>
-                                <Form.Control
-                                    type="number"
-                                    name="price"
-                                    value={formData.price}
-                                    onChange={handleInputChange}
-                                    placeholder="0.00"
-                                    step="0.01"
-                                    min="0.01"
-                                    disabled={loading || !sellerChecked}
-                                />
-                            </Form.Group>
-                        </Col>
-                        <Col md={4}>
-                            <Form.Group className="mb-3">
-                                <Form.Label>Валюта</Form.Label>
-                                <Form.Select
-                                    name="currency"
-                                    value={formData.currency}
-                                    onChange={handleInputChange}
-                                    disabled={loading || !sellerChecked}
-                                >
-                                    <option value="USD">$ USD</option>
-                                    <option value="EUR">€ EUR</option>
-                                    <option value="BYN">Br BYN</option>
-                                    <option value="RUB">₽ RUB</option>
-                                </Form.Select>
-                            </Form.Group>
-                        </Col>
-                    </Row>
-                );
-            case 'negotiable':
-                return (
-                    <div className="mb-3">
-                        <p className="text-muted">Цена: <strong>Договорная</strong></p>
-                    </div>
-                );
-            case 'custom':
-                return (
-                    <Form.Group className="mb-3">
-                        <Form.Label>Текст цены <span className="text-danger">*</span></Form.Label>
-                        <Form.Control
-                            type="text"
-                            name="priceText"
-                            value={formData.priceText}
-                            onChange={handleInputChange}
-                            placeholder="Например: Бесплатно, Обмен, Цена по запросу..."
-                            disabled={loading || !sellerChecked}
-                        />
-                    </Form.Group>
-                );
-            default:
-                return null;
-        }
-    };
+    switch (formData.priceType) {
+        case 'fixed':
+            return (
+                <Form.Group className="mb-3">
+                    <Form.Label>Цена ($) <span className="text-danger">*</span></Form.Label>
+                    <Form.Control
+                        type="number"
+                        name="price"
+                        value={formData.price}
+                        onChange={handleInputChange}
+                        placeholder="0.00"
+                        step="0.01"
+                        min="0.01"
+                        disabled={loading || !sellerChecked}
+                    />
+                    <Form.Text className="text-muted">
+                        Цена указывается в долларах США ($)
+                    </Form.Text>
+                </Form.Group>
+            );
+        case 'negotiable':
+            return (
+                <div className="mb-3">
+                    <p className="text-muted">Цена: <strong>Договорная</strong></p>
+                </div>
+            );
+        case 'custom':
+            return (
+                <Form.Group className="mb-3">
+                    <Form.Label>Текст цены <span className="text-danger">*</span></Form.Label>
+                    <Form.Control
+                        type="text"
+                        name="priceText"
+                        value={formData.priceText}
+                        onChange={handleInputChange}
+                        placeholder="Например: Бесплатно, Обмен, Цена по запросу..."
+                        disabled={loading || !sellerChecked}
+                    />
+                </Form.Group>
+            );
+        default:
+            return null;
+    }
+};
 
     if (!user.isAuth) {
         return (

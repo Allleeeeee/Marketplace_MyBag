@@ -268,7 +268,7 @@ const FiltersSidebar = observer(() => {
                 </div>
 
                 <div className="filter-group">
-                    <label className="filter-label">Цена, ₽</label>
+                    <label className="filter-label">Цена, $</label>
                     <div className="price-inputs-vertical">
                         <div className="price-input-group">
                             <input
