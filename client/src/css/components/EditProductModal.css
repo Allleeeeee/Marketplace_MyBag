@@ -1,0 +1,143 @@
+/* css/components/EditProductModal.css */
+.edit-product-modal .modal-content {
+    border-radius: 12px;
+    border: 2px solid #e0e0e0;
+}
+
+.edit-product-modal .modal-header {
+    background: #fafafa;
+    border-bottom: 2px solid #e0e0e0;
+    border-radius: 10px 10px 0 0;
+}
+
+.edit-product-modal .modal-title {
+    color: #333;
+    font-weight: 600;
+    font-size: 1.4rem;
+}
+
+.edit-product-modal .modal-body {
+    padding: 25px;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.form-section {
+    margin-bottom: 25px;
+}
+
+.section-title {
+    color: #333;
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #ffeb3b;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.section-header .section-title {
+    margin-bottom: 0;
+    border-bottom: none;
+}
+
+.form-group label {
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.form-control {
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 10px;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #ffeb3b;
+    box-shadow: 0 0 0 0.2rem rgba(255, 235, 59, 0.25);
+}
+
+.characteristic-row {
+    margin-bottom: 12px;
+    align-items: center;
+}
+
+.image-preview {
+    text-align: center;
+    margin-top: 12px;
+}
+
+.image-preview p {
+    color: #666;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.preview-image {
+    max-width: 150px;
+    max-height: 150px;
+    border-radius: 6px;
+    border: 2px solid #e0e0e0;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 2px solid #e0e0e0;
+}
+
+.submit-button {
+    background: #ffeb3b;
+    border: 2px solid #ffeb3b;
+    color: #333;
+    padding: 10px 25px;
+    font-weight: 600;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.submit-button:hover {
+    background: #fdd835;
+    border-color: #fdd835;
+    transform: translateY(-1px);
+}
+
+.submit-button:disabled {
+    background: #cccccc;
+    border-color: #cccccc;
+    transform: none;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .edit-product-modal .modal-body {
+        padding: 15px;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .submit-button {
+        width: 100%;
+    }
+}

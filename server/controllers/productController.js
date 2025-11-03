@@ -657,6 +657,140 @@ class ProductController {
             return res.json(BELARUS_CITIES.sort());
         }
     }
+// В controllers/productController.js добавьте метод update
+// controllers/productController.js - добавьте этот метод
+async update(req, res, next) {
+    try {
+        const { id } = req.params;
+        let { name, price, typeId, city, description, priceType, priceText, currency, info } = req.body;
+        const { img } = req.files || {};
+
+        console.log('Updating product with data:', { 
+            name, price, typeId, city, description, priceType, priceText, currency 
+        });
+
+        // Находим товар
+        const product = await Product.findOne({ where: { id } });
+        if (!product) {
+            return next(ApiError.notFound('Товар не найден'));
+        }
+
+        let fileName = product.img;
+        
+        // Обрабатываем новое изображение
+        if (img) {
+            if (!img.mimetype.startsWith('image/')) {
+                return next(ApiError.badRequest('Можно загружать только изображения (JPG, PNG, GIF)'));
+            }
+
+            if (img.size > 5 * 1024 * 1024) {
+                return next(ApiError.badRequest('Размер изображения не должен превышать 5MB'));
+            }
+
+            fileName = uuidv4() + ".jpg";
+            const filePath = path.resolve(__dirname, '..', 'static', fileName);
+            await img.mv(filePath);
+
+            // Удаляем старое изображение
+            if (product.img) {
+                const oldFilePath = path.resolve(__dirname, '..', 'static', product.img);
+                if (fs.existsSync(oldFilePath)) {
+                    fs.unlinkSync(oldFilePath);
+                }
+            }
+        }
+
+        // Валидация типа цены
+        const validPriceTypes = ['fixed', 'negotiable', 'custom'];
+        const finalPriceType = validPriceTypes.includes(priceType) ? priceType : 'fixed';
+
+        const validCurrencies = ['USD', 'EUR', 'BYN', 'RUB'];
+        const finalCurrency = validCurrencies.includes(currency) ? currency : 'BYN';
+
+        let finalPrice = null;
+        let finalPriceText = '';
+
+        if (finalPriceType === 'fixed') {
+            if (!price || parseFloat(price) <= 0) {
+                return next(ApiError.badRequest('Для фиксированной цены необходимо указать положительное число'));
+            }
+            finalPrice = parseFloat(price);
+            finalPriceText = `${finalPrice} ${finalCurrency}`;
+        } else if (finalPriceType === 'negotiable') {
+            finalPriceText = 'Договорная';
+        } else if (finalPriceType === 'custom') {
+            if (!priceText || priceText.trim().length === 0) {
+                return next(ApiError.badRequest('Для кастомной цены необходимо указать текст'));
+            }
+            finalPriceText = priceText.trim();
+        }
+
+        // Обновляем товар
+        await product.update({
+            name: name.trim(),
+            price: finalPrice,
+            price_type: finalPriceType,
+            price_text: finalPriceText,
+            currency: finalCurrency,
+            type_id: typeId,
+            img: fileName,
+            city: city.trim(),
+            description: description?.trim() || ''
+        });
+
+        // Обновляем характеристики
+        if (info) {
+            try {
+                // Удаляем старые характеристики
+                await ProductInfo.destroy({ where: { product_id: id } });
+                
+                // Добавляем новые
+                let characteristics = [];
+                if (typeof info === 'string') {
+                    characteristics = JSON.parse(info);
+                } else if (Array.isArray(info)) {
+                    characteristics = info;
+                }
+                
+                if (Array.isArray(characteristics) && characteristics.length > 0) {
+                    const validCharacteristics = characteristics.filter(item => 
+                        item.title && item.description && 
+                        item.title.trim() && item.description.trim()
+                    );
+                    
+                    if (validCharacteristics.length > 0) {
+                        await Promise.all(validCharacteristics.map(char => 
+                            ProductInfo.create({
+                                title: char.title.trim(),
+                                description: char.description.trim(),
+                                product_id: id
+                            })
+                        ));
+                    }
+                }
+            } catch (parseError) {
+                console.error('Error parsing product info:', parseError);
+            }
+        }
+
+        // Получаем обновленный товар с характеристиками
+        const updatedProduct = await Product.findOne({
+            where: { id },
+            include: [
+                { model: ProductInfo, as: 'info' },
+                { model: Type, attributes: ['id', 'name'] }
+            ]
+        });
+
+        console.log('Product updated successfully:', id);
+        return res.json(updatedProduct);
+
+    } catch (e) {
+        console.error('Ошибка при обновлении продукта:', e);
+        next(ApiError.internal('Ошибка при обновлении товара'));
+    }
+}
+    
 }
 
 module.exports = new ProductController();
