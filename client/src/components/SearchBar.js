@@ -1,6 +1,8 @@
-import React, { useState, useContext, useEffect } from 'react';
+// components/SearchBar.js
+import React, { useState, useContext } from 'react';
 import { observer } from 'mobx-react-lite';
 import { Context } from '../index';
+import ShopSearchButton from './ShopSearchButton';
 import '../css/components/SearchBar.css';
 
 const SearchBar = observer(() => {
@@ -39,47 +41,53 @@ const SearchBar = observer(() => {
 
     return (
         <div className="search-bar-container">
-            <form onSubmit={handleSearch} className="search-form">
-                <div className="search-input-group">
-                    <div className="search-icon">🔍</div>
-                    <input
-                        type="text"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        onKeyPress={handleKeyPress}
-                        placeholder={
-                            product.selectedCity 
-                                ? `Поиск в ${product.selectedCity}...`
-                                : 'Сначала выберите город...'
-                        }
-                        className="search-input"
-                        disabled={isSearching || !product.selectedCity}
-                    />
-                    {searchQuery && (
-                        <button
-                            type="button"
-                            onClick={clearSearch}
-                            className="clear-search-button"
-                            disabled={isSearching}
-                        >
-                            ✕
-                        </button>
-                    )}
-                    <button 
-                        type="submit" 
-                        className="search-button"
-                        disabled={isSearching || !product.selectedCity || !searchQuery.trim()}
-                    >
-                        {isSearching ? (
-                            <div className="search-spinner"></div>
-                        ) : (
-                            'Найти'
+            <div className="search-bar-content">
+                <form onSubmit={handleSearch} className="search-form">
+                    <div className="search-input-group">
+                        <div className="search-icon">🔍</div>
+                        <input
+                            type="text"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onKeyPress={handleKeyPress}
+                            placeholder={
+                                product.hasSelectedCity 
+                                    ? `Поиск товаров в ${product.currentCity}...`
+                                    : 'Сначала выберите город...'
+                            }
+                            className="search-input"
+                            disabled={isSearching || !product.hasSelectedCity}
+                        />
+                        {searchQuery && (
+                            <button
+                                type="button"
+                                onClick={clearSearch}
+                                className="clear-search-button"
+                                disabled={isSearching}
+                            >
+                                ✕
+                            </button>
                         )}
-                    </button>
-                </div>
-            </form>
+                        <button 
+                            type="submit" 
+                            className="search-button"
+                            disabled={isSearching || !product.hasSelectedCity || !searchQuery.trim()}
+                        >
+                            {isSearching ? (
+                                <div className="search-spinner"></div>
+                            ) : (
+                                'Найти'
+                            )}
+                        </button>
+                    </div>
+                </form>
 
-            {!product.selectedCity && (
+                <div className="shop-search-wrapper">
+                    <ShopSearchButton />
+                </div>
+            </div>
+
+            {!product.hasSelectedCity && (
                 <div className="no-city-message">
                     <div className="no-city-text">
                         Выберите город для поиска товаров

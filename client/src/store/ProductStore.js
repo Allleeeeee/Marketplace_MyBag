@@ -1,4 +1,15 @@
+// store/ProductStore.js
 import { makeAutoObservable } from 'mobx';
+import { 
+    getAllSellers, 
+    getSellerById, 
+    getSellerProducts,
+    getSellerByUserId 
+} from '../http/sellerAPI';
+import { 
+    getProductsBySeller,
+    searchProducts 
+} from '../http/productAPI';
 
 class ProductStore {
     products = [];
@@ -10,7 +21,16 @@ class ProductStore {
     error = null;
     cities = [];
     currentSearchQuery = '';
-    currentFilters = null; 
+    currentFilters = null;
+    
+    // НОВЫЕ СВОЙСТВА ДЛЯ ПРОДАВЦОВ
+    sellers = [];
+    selectedSeller = null;
+    sellerProducts = [];
+    isSellersLoading = false;
+    sellersTotalCount = 0;
+    sellersPage = 1;
+    sellersLimit = 12;
 
     constructor() {
         makeAutoObservable(this);
@@ -37,6 +57,7 @@ class ProductStore {
         }
     }
 
+    // СУЩЕСТВУЮЩИЕ МЕТОДЫ
     setProducts(products) {
         this.products = products;
     }
@@ -79,18 +100,65 @@ class ProductStore {
         }
     }
 
-   
+    // НОВЫЕ МЕТОДЫ ДЛЯ ПРОДАВЦОВ
+    setSellers(sellers) {
+        this.sellers = sellers;
+    }
+
+    setSelectedSeller(seller) {
+        this.selectedSeller = seller;
+    }
+
+    setSellerProducts(products) {
+        this.sellerProducts = products;
+    }
+
+    setIsSellersLoading(loading) {
+        this.isSellersLoading = loading;
+    }
+
+    setSellersTotalCount(count) {
+        this.sellersTotalCount = count;
+    }
+
+    setSellersPage(page) {
+        this.sellersPage = page;
+    }
+
+    // ГЕТТЕРЫ
     getCurrentFilters() {
         return this.currentFilters;
     }
 
- 
+    get currentCity() {
+        return this.selectedCity || sessionStorage.getItem('city') || 'Выберите город';
+    }
+
+    get hasSelectedCity() {
+        return !!this.selectedCity;
+    }
+
+    get hasActiveSearch() {
+        return !!this.currentSearchQuery;
+    }
+
+    get hasActiveFilters() {
+        return this.currentFilters && (
+            this.currentFilters.minPrice || 
+            this.currentFilters.maxPrice || 
+            this.currentFilters.sortBy !== 'newest' || 
+            this.currentFilters.categoryId || 
+            (this.currentFilters.characteristics && Object.keys(this.currentFilters.characteristics).length > 0) || 
+            this.currentFilters.excludeNoPrice
+        );
+    }
+
+    // СУЩЕСТВУЮЩИЕ МЕТОДЫ ДЛЯ ПРОДУКТОВ
     clearCurrentFilters() {
         this.currentFilters = null;
         sessionStorage.removeItem('productFilters');
     }
 
-   
     async fetchCities() {
         try {
             const response = await fetch('http://localhost:5000/api/prod/cities');
@@ -141,7 +209,6 @@ class ProductStore {
             const data = await response.json();
             let allProducts = data.rows || data;
 
-          
             if (this.currentSearchQuery) {
                 const searchTerm = this.currentSearchQuery.toLowerCase().trim();
                 allProducts = allProducts.filter(product => 
@@ -151,14 +218,12 @@ class ProductStore {
                 );
             }
 
-           
             if (filters.categoryId) {
                 allProducts = allProducts.filter(product => 
                     product.type_id == filters.categoryId
                 );
             }
 
-            
             if (filters.characteristics && Object.keys(filters.characteristics).length > 0) {
                 allProducts = allProducts.filter(product => {
                     if (!product.info || !Array.isArray(product.info)) return false;
@@ -172,7 +237,6 @@ class ProductStore {
                 });
             }
 
-          
             if (filters.minPrice) {
                 const minPrice = parseFloat(filters.minPrice);
                 allProducts = allProducts.filter(product => {
@@ -292,27 +356,91 @@ class ProductStore {
         await this.fetchProducts(filters);
     }
 
-    get currentCity() {
-        return this.selectedCity || sessionStorage.getItem('city') || 'Выберите город';
+    // НОВЫЕ МЕТОДЫ ДЛЯ РАБОТЫ С ПРОДАВЦАМИ
+    async fetchSellers(city = '', page = 1, limit = 12) {
+        this.setIsSellersLoading(true);
+        try {
+            const params = { page, limit };
+            if (city) params.city = city;
+            
+            const response = await getAllSellers(params);
+            this.setSellers(response.rows || response);
+            this.setSellersTotalCount(response.count || response.length);
+            return response;
+        } catch (error) {
+            console.error('Ошибка при загрузке продавцов:', error);
+            this.setError('Не удалось загрузить список магазинов');
+            throw error;
+        } finally {
+            this.setIsSellersLoading(false);
+        }
     }
 
-    get hasSelectedCity() {
-        return !!this.selectedCity;
+    async fetchSellerById(sellerId) {
+        this.setIsSellersLoading(true);
+        try {
+            const seller = await getSellerById(sellerId);
+            this.setSelectedSeller(seller);
+            return seller;
+        } catch (error) {
+            console.error('Ошибка при загрузке продавца:', error);
+            this.setError('Не удалось загрузить информацию о магазине');
+            throw error;
+        } finally {
+            this.setIsSellersLoading(false);
+        }
     }
 
-    get hasActiveSearch() {
-        return !!this.currentSearchQuery;
+    async fetchSellerProducts(sellerId) {
+        try {
+            const products = await getSellerProducts(sellerId);
+            this.setSellerProducts(products);
+            return products;
+        } catch (error) {
+            console.error('Ошибка при загрузке товаров продавца:', error);
+            
+            // Если отдельный endpoint не работает, используем общий с фильтром
+            try {
+                const products = await getProductsBySeller(sellerId);
+                this.setSellerProducts(products.rows || products);
+                return products;
+            } catch (fallbackError) {
+                this.setError('Не удалось загрузить товары магазина');
+                throw fallbackError;
+            }
+        }
     }
 
-    get hasActiveFilters() {
-        return this.currentFilters && (
-            this.currentFilters.minPrice || 
-            this.currentFilters.maxPrice || 
-            this.currentFilters.sortBy !== 'newest' || 
-            this.currentFilters.categoryId || 
-            (this.currentFilters.characteristics && Object.keys(this.currentFilters.characteristics).length > 0) || 
-            this.currentFilters.excludeNoPrice
-        );
+    async searchSellers(searchQuery) {
+        this.setIsSellersLoading(true);
+        try {
+            // Фильтруем продавцов по имени или описанию
+            const allSellers = await getAllSellers();
+            const filteredSellers = allSellers.rows?.filter(seller => 
+                seller.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                (seller.description && seller.description.toLowerCase().includes(searchQuery.toLowerCase()))
+            ) || [];
+            
+            this.setSellers(filteredSellers);
+            return filteredSellers;
+        } catch (error) {
+            console.error('Ошибка при поиске продавцов:', error);
+            throw error;
+        } finally {
+            this.setIsSellersLoading(false);
+        }
+    }
+
+    clearSeller() {
+        this.setSelectedSeller(null);
+        this.setSellerProducts([]);
+    }
+
+    clearSellers() {
+        this.setSellers([]);
+        this.setSelectedSeller(null);
+        this.setSellerProducts([]);
+        this.setSellersPage(1);
     }
 }
 

@@ -1,0 +1,43 @@
+/* css/components/RatingStars.css */
+.rating-stars {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.rating-stars.small {
+    font-size: 16px;
+}
+
+.rating-stars.medium {
+    font-size: 20px;
+}
+
+.rating-stars.large {
+    font-size: 24px;
+}
+
+.star {
+    color: #e0e0e0;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    user-select: none;
+}
+
+.rating-stars.readonly .star {
+    cursor: default;
+}
+
+.star.filled {
+    color: #ffeb3b;
+}
+
+.rating-stars:not(.readonly) .star:hover {
+    color: #ffeb3b;
+}
+
+.rating-value {
+    margin-left: 8px;
+    font-size: 14px;
+    color: #757575;
+}

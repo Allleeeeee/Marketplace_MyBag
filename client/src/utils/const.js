@@ -8,3 +8,5 @@ export const PROFILE_ROUTE='/profile';
 export const PRODUCT_ROUTE = '/product';
 export const FAVORITES_ROUTE = '/favorites'
 export const ADD_PRODUCT_ROUTE = '/add-product';
+export const SELLERS_ROUTE = '/sellers'
+export const SELLER_DETAIL_ROUTE = '/seller'

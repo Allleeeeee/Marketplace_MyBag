@@ -5,6 +5,8 @@ import { publicRoutes } from "../routes";
 import { SHOP_ROUTE } from "../utils/const";
 import { Context } from "../index.js";
 import {observer} from "mobx-react-lite";
+import SellersPage from "../pages/SellersPage";
+import SellerDetailPage from "../pages/SellerDetailPage";
 
 const AppRouter =()=> {
     const { user } = useContext(Context); 
@@ -16,7 +18,13 @@ const AppRouter =()=> {
 
      {publicRoutes.map (({path,Component})=>
     <Route key={path} path={path} component={Component} exact/>)}
-    <Redirect to={SHOP_ROUTE}/> </Switch>
+     
+     {/* Добавляем маршруты для продавцов */}
+     <Route path="/sellers" component={SellersPage} exact/>
+     <Route path="/seller/:id" component={SellerDetailPage} exact/>
+     
+    <Redirect to={SHOP_ROUTE}/> 
+    </Switch>
   );
 }
 

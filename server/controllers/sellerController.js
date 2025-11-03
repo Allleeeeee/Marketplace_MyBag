@@ -1,11 +1,13 @@
+// controllers/sellerController.js
 const ApiError = require('../error/ApiError');
-const { Seller } = require('../models/models');
+const { Seller, Product, ProductInfo, Type } = require('../models/models');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
+const { Op } = require('sequelize');
 
 class SellerController {
-       async create(req, res, next) {
+    async create(req, res, next) {
         try {
             const { name, description, user_id } = req.body;
             
@@ -15,13 +17,12 @@ class SellerController {
                 return next(ApiError.badRequest('Необходимы поля: name и user_id'));
             }
 
-             const existingSeller = await Seller.findOne({ where: { user_id } });
+            const existingSeller = await Seller.findOne({ where: { user_id } });
             if (existingSeller) {
                 console.log('Seller already exists for user:', user_id);
                 return res.json(existingSeller);
             }
 
-            
             const staticDir = path.resolve(__dirname, '..', 'static');
             if (!fs.existsSync(staticDir)) {
                 fs.mkdirSync(staticDir, { recursive: true });
@@ -67,10 +68,70 @@ class SellerController {
             next(ApiError.internal('Ошибка при создании продавца'));
         }
     }
+
+  // controllers/sellerController.js
+async getAll(req, res, next) {
+    try {
+        let { limit, page, city } = req.query;
+        page = page || 1;
+        limit = limit || 12;
+        let offset = page * limit - limit;
+
+        let whereClause = {};
+
+        if (city) {
+            const sellersWithProductsInCity = await Product.findAll({
+                where: { city },
+                attributes: ['seller_id'],
+                group: ['seller_id'],
+                raw: true
+            });
+            
+            const sellerIds = sellersWithProductsInCity.map(item => item.seller_id);
+            if (sellerIds.length > 0) {
+                whereClause.id = sellerIds;
+            } else {
+                // Если нет продавцов в этом городе, возвращаем пустой список
+                return res.json({
+                    rows: [],
+                    count: 0,
+                    currentPage: parseInt(page),
+                    totalPages: 0
+                });
+            }
+        }
+
+        const sellers = await Seller.findAndCountAll({
+            where: whereClause,
+            limit,
+            offset,
+            order: [['createdAt', 'DESC']]
+        });
+
+        const sellersWithFullUrls = sellers.rows.map(seller => {
+            const sellerData = seller.toJSON();
+            if (sellerData.img) {
+                sellerData.img = `${req.protocol}://${req.get('host')}/static/${sellerData.img}`;
+            }
+            return sellerData;
+        });
+
+        return res.json({
+            rows: sellersWithFullUrls,
+            count: sellers.count,
+            currentPage: parseInt(page),
+            totalPages: Math.ceil(sellers.count / limit)
+        });
+    } catch (e) {
+        console.error('Get all sellers error:', e);
+        next(ApiError.internal('Ошибка при получении списка продавцов'));
+    }
+}
+
     async getSellerInfo(req, res, next) {
         const { id } = req.params;
         try {
-            const seller = await Seller.findOne({ where: { user_id: id } });
+            const seller = await Seller.findOne({ where: { id } });
             if (!seller) {
                 return next(ApiError.notFound('Продавец не найден'));
             }
@@ -84,6 +145,53 @@ class SellerController {
         } catch (e) {
             console.error('Get seller error:', e);
             next(ApiError.internal('Ошибка при получении информации о продавце'));
+        }
+    }
+
+    async getByUserId(req, res, next) {
+        const { userId } = req.params;
+        try {
+            const seller = await Seller.findOne({ where: { user_id: userId } });
+            if (!seller) {
+                return next(ApiError.notFound('Продавец не найден'));
+            }
+            
+            const sellerData = seller.toJSON();
+            if (sellerData.img) {
+                sellerData.img = `${req.protocol}://${req.get('host')}/static/${sellerData.img}`;
+            }
+            
+            return res.json(sellerData);
+        } catch (e) {
+            console.error('Get seller by user id error:', e);
+            next(ApiError.internal('Ошибка при получении информации о продавце'));
+        }
+    }
+
+    async getSellerProducts(req, res, next) {
+        const { sellerId } = req.params;
+        try {
+            const products = await Product.findAll({
+                where: { seller_id: sellerId },
+                include: [
+                    { model: ProductInfo, as: 'info' },
+                    { model: Type, attributes: ['id', 'name'] }
+                ],
+                order: [['createdAt', 'DESC']]
+            });
+
+            const productsWithFullUrls = products.map(product => {
+                const productData = product.toJSON();
+                if (productData.img) {
+                    productData.img = `${req.protocol}://${req.get('host')}/static/${productData.img}`;
+                }
+                return productData;
+            });
+
+            return res.json(productsWithFullUrls);
+        } catch (e) {
+            console.error('Get seller products error:', e);
+            next(ApiError.internal('Ошибка при получении товаров продавца'));
         }
     }
 
@@ -119,7 +227,6 @@ class SellerController {
                 
                 img = fileName;
 
-              
                 if (seller.img) {
                     const oldFilePath = path.join(staticDir, seller.img);
                     if (fs.existsSync(oldFilePath)) {

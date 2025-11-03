@@ -6,7 +6,6 @@ export const fetchProducts = async (typeId, brandId, page, limit) => {
     return data;
 };
 
-
 export const fetchOneProduct = async (id) => {
     const { data } = await $host.get(`api/prod/prod/${id}`);
     return data;
@@ -28,5 +27,28 @@ export const getTypes = async () => {
 
 export const getBelarusCities = async () => {
     const { data } = await $host.get('api/prod/cities');
+    return data;
+};
+
+// ДОБАВЛЯЕМ НОВЫЕ МЕТОДЫ
+export const searchProducts = async (searchQuery, params = {}) => {
+    const { data } = await $host.get('api/prod/search', { 
+        params: { q: searchQuery, ...params } 
+    });
+    return data;
+};
+
+export const getProductsBySeller = async (sellerId) => {
+    const { data } = await $host.get('api/prod', { params: { sellerId } });
+    return data;
+};
+
+export const getUniqueCities = async () => {
+    const { data } = await $host.get('api/prod/cities');
+    return data;
+};
+
+export const geocodeLocation = async (lat, lng) => {
+    const { data } = await $host.get('api/prod/geocode', { params: { lat, lng } });
     return data;
 };
