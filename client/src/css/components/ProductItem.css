@@ -1,58 +1,233 @@
 /* css/components/ProductItem.css */
-.product-card {
-    background: white;
-    border: 2px solid #e0e0e0;
-    border-radius: 12px;
-    transition: all 0.3s ease;
+.card-product {
+    background: #ffffff;
+    border: 1px solid #e8e8e8;
+    border-radius: 10px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
     overflow: hidden;
     height: 100%;
     position: relative;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.product-card:hover {
-    transform: translateY(-4px);
-    border-color: #ffd700;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-}
-
-.product-image {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-    border-bottom: 2px solid #e0e0e0;
-}
-
-.product-card-body {
-    padding: 18px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
     display: flex;
     flex-direction: column;
-    height: calc(100% - 200px);
+    aspect-ratio: 4/3; /* Изменил пропорции на более широкие */
+    max-width: 320px; /* Увеличил максимальную ширину */
+    min-height: 350px; /* Уменьшил минимальную высоту */
 }
 
-.product-name {
-    color: #333;
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin-bottom: 10px;
-    line-height: 1.4;
+.card-product:hover {
+    transform: translateY(-3px);
+    border-color: #3c2f2f;
+    box-shadow: 0 6px 20px rgba(60, 47, 47, 0.1);
+}
+
+.card-image {
+    width: 100%;
+    height: 240px; /* Уменьшил высоту изображения */
+    object-fit: cover;
+    border-bottom: 1px solid #f8f8f8;
+    transition: transform 0.3s ease;
+}
+
+.card-product:hover .card-image {
+    transform: scale(1.02);
+}
+
+.card-body {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
     flex-grow: 1;
+    justify-content: space-between;
+    gap: 6px; /* Уменьшил промежутки */
+    min-height: 100px; /* Минимальная высота блока с текстом */
 }
 
-.product-price {
-    color: #333;
-    font-size: 1.3rem;
+.card-name {
+    color: #3c2f2f;
+    font-size: 1rem; 
+    font-weight: 600;
+    line-height: 1.2;
+    flex-grow: 1;
+    text-align: left;
+    letter-spacing: -0.01em;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin: 0;
+}
+
+.card-price {
+    color: #3c2f2f;
+    font-size: 1.1rem; /* Уменьшил размер шрифта */
     font-weight: 700;
-    margin-bottom: 6px;
+    text-align: left;
+    letter-spacing: -0.02em;
+    margin: 0;
+    background: linear-gradient(135deg, #3c2f2f, #5a4a4a);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
-.product-city {
+.card-city {
     color: #666;
-    font-size: 0.85rem;
-    padding: 4px 8px;
-    background: #f8f8f8;
-    border-radius: 4px;
-    display: inline-block;
-    border: 1px solid #e0e0e0;
+    font-size: 0.8rem; /* Уменьшил размер шрифта */
+    padding: 3px 6px; /* Уменьшил отступы */
+    background: #f8f7f4;
+    border-radius: 4px; /* Уменьшил скругление */
+    display: inline-flex;
+    border: 1px solid #e8e6e0;
+    text-align: left;
+    align-self: flex-start;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    margin: 0;
+    transition: all 0.3s ease;
+}
+
+.card-product:hover .card-city {
+    background: #3c2f2f;
+    color: #ffffff;
+    border-color: #3c2f2f;
+}
+
+/* Акцентные элементы */
+.card-product::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1.5px;
+    background: linear-gradient(90deg, #3c2f2f, #5a4a4a, #3c2f2f);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.card-product:hover::after {
+    opacity: 1;
+}
+
+/* Бейдж для нового товара */
+.card-product::before {
+    content: 'Новое';
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background: #3c2f2f;
+    color: white;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-size: 0.6rem;
+    font-weight: 600;
+    z-index: 2;
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: all 0.3s ease;
+}
+
+.card-product:hover::before {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .card-product {
+        border-radius: 8px;
+        aspect-ratio: 4/3;
+        max-width: 280px;
+        min-height: 210px;
+    }
+    
+    .card-image {
+        height: 130px;
+    }
+    
+    .card-body {
+        padding: 10px;
+        gap: 4px;
+        min-height: 70px;
+    }
+    
+    .card-name {
+        font-size: 0.9rem;
+    }
+    
+    .card-price {
+        font-size: 1rem;
+    }
+    
+    .card-city {
+        font-size: 0.75rem;
+        padding: 2px 4px;
+    }
+}
+
+@media (max-width: 480px) {
+    .card-product {
+        max-width: 100%;
+        aspect-ratio: 5/3; /* Еще более широкие на мобильных */
+        min-height: 180px;
+    }
+    
+    .card-image {
+        height: 110px;
+    }
+    
+    .card-body {
+        padding: 8px;
+        min-height: 60px;
+    }
+    
+    .card-name {
+        font-size: 0.85rem;
+    }
+    
+    .card-price {
+        font-size: 0.9rem;
+    }
+}
+
+/* Анимация загрузки */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card-product {
+    animation: fadeIn 0.4s ease-out;
+}
+
+/* Контейнер для сетки карточек */
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Увеличил минимальную ширину */
+    gap: 16px;
+    padding: 16px;
+}
+
+@media (max-width: 768px) {
+    .products-grid {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 12px;
+        padding: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .products-grid {
+        grid-template-columns: 1fr; /* Одна колонка на очень маленьких экранах */
+        gap: 10px;
+        padding: 10px;
+    }
 }

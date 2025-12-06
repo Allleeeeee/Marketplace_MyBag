@@ -37,6 +37,7 @@ const UserInfo = () => {
                 user.setUser(userInfo);
                 if (user.user.id) {
                     const sellerData = await getSellerInfo(user.user.id);
+                    console.log('id sosi'+ user.user.id);
                     setSeller(sellerData);
                     setUpdatedSeller({ 
                         name: sellerData.name, 

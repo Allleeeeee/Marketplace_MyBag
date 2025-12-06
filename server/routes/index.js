@@ -8,6 +8,7 @@ const productRouter = require('./productRouter')
 const favouriteRouter = require('./favouriteRouter')
 const reviewRouter = require('./reviewRouter')
 const sellerRouter = require('./sellerRouter')
+const messageRouter = require('./messageRoutes');
 
 router.use('/user', userRouter) 
 router.use('/type', typeRouter)
@@ -17,5 +18,6 @@ router.use('/prod', productRouter)
 router.use('/favorite', favouriteRouter)
 router.use('/review', reviewRouter)
 router.use('/seller', sellerRouter)
+router.use('/message', messageRouter);
 
 module.exports = router

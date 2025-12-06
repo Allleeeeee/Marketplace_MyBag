@@ -30,7 +30,6 @@ export const getBelarusCities = async () => {
     return data;
 };
 
-// ДОБАВЛЯЕМ НОВЫЕ МЕТОДЫ
 export const searchProducts = async (searchQuery, params = {}) => {
     const { data } = await $host.get('api/prod/search', { 
         params: { q: searchQuery, ...params } 
@@ -52,3 +51,10 @@ export const geocodeLocation = async (lat, lng) => {
     const { data } = await $host.get('api/prod/geocode', { params: { lat, lng } });
     return data;
 };
+
+// ДОБАВЛЯЕМ МЕТОД ДЛЯ УДАЛЕНИЯ ТОВАРА
+export const deleteProduct = async (id) => {
+    const { data } = await $authHost.delete(`api/prod/${id}`);
+    return data;
+};
+

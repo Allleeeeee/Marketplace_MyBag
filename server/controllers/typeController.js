@@ -1,4 +1,4 @@
-const { Type } = require('../models/models');
+const { Type, Product } = require('../models/models');
 const ApiError = require('../error/ApiError');
 
 class TypeController {
@@ -52,23 +52,41 @@ class TypeController {
     }
 
     async delete(req, res, next) {
+        const transaction = await require('../db').transaction(); 
+        
         try {
             const { id } = req.params;
-            const deletedType = await Type.destroy({ where: { id } });
+            const type = await Type.findOne({ 
+                where: { id },
+                transaction 
+            });
             
-            if (!deletedType) {
+            if (!type) {
+                await transaction.rollback();
                 return next(ApiError.notFound('Тип не найден'));
             }
+            const deletedProductsCount = await Product.destroy({ 
+                where: { type_id: id },
+                transaction 
+            });
 
-            return res.json({ message: 'Тип успешно удален' });
+            const deletedType = await Type.destroy({ 
+                where: { id },
+                transaction 
+            });
+
+            await transaction.commit();
+
+            return res.json({ 
+                message: 'Тип и связанные товары успешно удалены',
+                deletedType: true,
+                deletedProductsCount: deletedProductsCount
+            });
+            
         } catch (e) {
+               await transaction.rollback();
             console.error('Error deleting type:', e);
-            
-            if (e.name === 'SequelizeForeignKeyConstraintError') {
-                return next(ApiError.badRequest('Невозможно удалить тип, так как существуют товары этого типа'));
-            }
-            
-            next(ApiError.internal('Ошибка при удалении типа'));
+            next(ApiError.internal('Ошибка при удалении типа и связанных товаров'));
         }
     }
 }

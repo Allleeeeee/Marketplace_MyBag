@@ -391,25 +391,35 @@ class ProductStore {
         }
     }
 
-    async fetchSellerProducts(sellerId) {
+   async fetchSellerProducts(sellerId) {
+    try {
+        console.log('🔄 fetchSellerProducts called with sellerId:', sellerId);
+        
+        const products = await getSellerProducts(sellerId);
+        console.log('✅ Products received from API:', products);
+        
+        this.setSellerProducts(products);
+        return products;
+    } catch (error) {
+        console.error('❌ Error in fetchSellerProducts:', error);
+        
+        // Если отдельный endpoint не работает, используем общий с фильтром
         try {
-            const products = await getSellerProducts(sellerId);
-            this.setSellerProducts(products);
-            return products;
-        } catch (error) {
-            console.error('Ошибка при загрузке товаров продавца:', error);
+            console.log('🔄 Trying fallback method with getProductsBySeller...');
+            const products = await getProductsBySeller(sellerId);
+            console.log('✅ Fallback products received:', products);
             
-            // Если отдельный endpoint не работает, используем общий с фильтром
-            try {
-                const products = await getProductsBySeller(sellerId);
-                this.setSellerProducts(products.rows || products);
-                return products;
-            } catch (fallbackError) {
-                this.setError('Не удалось загрузить товары магазина');
-                throw fallbackError;
-            }
+            // Обрабатываем разные форматы ответа
+            const productsArray = products.rows || products || [];
+            this.setSellerProducts(productsArray);
+            return productsArray;
+        } catch (fallbackError) {
+            console.error('❌ Fallback also failed:', fallbackError);
+            this.setError('Не удалось загрузить товары магазина');
+            throw fallbackError;
         }
     }
+}
 
     async searchSellers(searchQuery) {
         this.setIsSellersLoading(true);

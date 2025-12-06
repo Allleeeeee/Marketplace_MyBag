@@ -1,27 +1,42 @@
-import React, {useState} from 'react';
-import Modal from "react-bootstrap/Modal";
-import {Form, Button} from "react-bootstrap";
-import { createType } from '../../http/deviceAPI';
+import React, { useState } from 'react';
+import { Modal, Button, Form, Spinner } from "react-bootstrap";
 
-const CreateType = ({show, onHide}) => {
-    const [value, setValue] = useState('')
+const CreateType = ({ show, onHide, onCreate, loading }) => {
+    const [value, setValue] = useState('');
+    const [error, setError] = useState('');
 
-    const addType = () => {
-        createType({name: value}).then(data => {
-            setValue('')
-            onHide()
-        })
-    }
+    const handleCreate = () => {
+        if (!value.trim()) {
+            setError('Название типа обязательно');
+            return;
+        }
+
+        if (value.length < 2) {
+            setError('Название типа должно содержать минимум 2 символа');
+            return;
+        }
+
+        setError('');
+        onCreate(value);
+        setValue(''); // Очищаем поле после создания
+    };
+
+    const handleClose = () => {
+        setValue('');
+        setError('');
+        onHide();
+    };
 
     return (
         <Modal
             show={show}
-            onHide={onHide}
+            onHide={handleClose}
+            size="lg"
             centered
         >
             <Modal.Header closeButton>
                 <Modal.Title id="contained-modal-title-vcenter">
-                    Добавить тип
+                    Добавить новый тип
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
@@ -30,12 +45,35 @@ const CreateType = ({show, onHide}) => {
                         value={value}
                         onChange={e => setValue(e.target.value)}
                         placeholder={"Введите название типа"}
+                        onKeyPress={e => {
+                            if (e.key === 'Enter') {
+                                handleCreate();
+                            }
+                        }}
                     />
+                    {error && (
+                        <div className="text-danger mt-2 small">{error}</div>
+                    )}
                 </Form>
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="outline-danger" onClick={onHide}>Закрыть</Button>
-                <Button variant="outline-success" onClick={addType}>Добавить</Button>
+                <Button variant="outline-danger" onClick={handleClose}>
+                    Отмена
+                </Button>
+                <Button 
+                    variant="outline-success" 
+                    onClick={handleCreate}
+                    disabled={loading || !value.trim()}
+                >
+                    {loading ? (
+                        <>
+                            <Spinner size="sm" className="me-2" />
+                            Добавление...
+                        </>
+                    ) : (
+                        'Добавить'
+                    )}
+                </Button>
             </Modal.Footer>
         </Modal>
     );

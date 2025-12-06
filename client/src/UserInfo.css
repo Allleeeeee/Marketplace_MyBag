@@ -29,12 +29,14 @@
     color: #333333;
     margin-bottom: 20px;
     font-size: 1.5rem;
+    text-align: left;
 }
 
 .info-display p {
     margin-bottom: 10px;
     color: #424242;
     font-size: 1.1rem;
+    text-align: left;
 }
 
 .edit-button, .edit-profile-button {
@@ -56,6 +58,7 @@
     display: flex;
     flex-direction: column;
     gap: 15px;
+    text-align: left;
 }
 
 .info-edit input, .seller-edit-form input, .seller-edit-form textarea {
@@ -63,6 +66,7 @@
     border: 1px solid #e0e0e0;
     border-radius: 6px;
     font-size: 1rem;
+    text-align: left;
 }
 
 .info-edit input:focus, .seller-edit-form input:focus, .seller-edit-form textarea:focus {
@@ -78,6 +82,7 @@
     border-radius: 6px;
     cursor: pointer;
     font-weight: 500;
+    align-self: flex-start;
 }
 
 .save-button:hover {
@@ -91,6 +96,7 @@
     padding: 10px 20px;
     border-radius: 6px;
     cursor: pointer;
+    align-self: flex-start;
 }
 
 .cancel-button:hover {
@@ -101,12 +107,13 @@
     display: flex;
     gap: 30px;
     align-items: flex-start;
+    text-align: left;
 }
 
 .seller-image-section {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     gap: 15px;
 }
 
@@ -126,23 +133,27 @@
 
 .seller-details {
     flex: 1;
+    text-align: left;
 }
 
 .seller-details p {
     margin-bottom: 10px;
     color: #424242;
     font-size: 1.1rem;
+    text-align: left;
 }
 
 .form-group {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    text-align: left;
 }
 
 .form-group label {
     color: #333333;
     font-weight: 500;
+    text-align: left;
 }
 
 .file-input {
@@ -155,6 +166,7 @@
     display: flex;
     gap: 12px;
     margin-top: 20px;
+    justify-content: flex-start;
 }
 
 /* Стили для секции товаров */
@@ -162,12 +174,14 @@
     margin-top: 30px;
     padding-top: 30px;
     border-top: 2px solid #e0e0e0;
+    text-align: left;
 }
 
 .seller-products-section h3 {
     color: #333333;
     margin-bottom: 20px;
     font-size: 1.3rem;
+    text-align: left;
 }
 
 .no-products {
@@ -193,6 +207,7 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     border: 1px solid #e0e0e0;
     transition: all 0.3s ease;
+    text-align: left;
 }
 
 .product-card:hover {
@@ -223,6 +238,7 @@
 
 .product-info {
     padding: 15px;
+    text-align: left;
 }
 
 .product-name {
@@ -231,12 +247,14 @@
     font-size: 1.1rem;
     font-weight: 600;
     line-height: 1.3;
+    text-align: left;
 }
 
 .product-city {
     margin: 0 0 8px 0;
     color: #757575;
     font-size: 0.9rem;
+    text-align: left;
 }
 
 .product-price {
@@ -254,6 +272,7 @@
 .product-actions {
     display: flex;
     gap: 8px;
+    justify-content: flex-start;
 }
 
 .edit-product-btn {
@@ -265,6 +284,7 @@
     cursor: pointer;
     font-size: 12px;
     flex: 1;
+    max-width: 120px;
 }
 
 .edit-product-btn:hover {
@@ -280,6 +300,7 @@
     cursor: pointer;
     font-size: 12px;
     flex: 1;
+    max-width: 120px;
 }
 
 .delete-product-btn:hover {
@@ -294,12 +315,14 @@
     border-radius: 8px;
     border: 1px solid #e0e0e0;
     margin-top: 30px;
+    text-align: left;
 }
 
 .edit-product-form h4 {
     color: #333333;
     margin-bottom: 20px;
     font-size: 1.2rem;
+    text-align: left;
 }
 
 .form-row {
@@ -317,6 +340,7 @@
     border-radius: 6px;
     font-size: 1rem;
     box-sizing: border-box;
+    text-align: left;
 }
 
 .edit-product-form input:focus,
@@ -334,7 +358,11 @@
     
     .seller-profile {
         flex-direction: column;
-        text-align: center;
+        text-align: left;
+    }
+    
+    .seller-image-section {
+        align-items: flex-start;
     }
     
     .products-grid {
@@ -347,5 +375,18 @@
     
     .form-actions {
         flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .save-button, .cancel-button {
+        align-self: stretch;
+    }
+    
+    .product-actions {
+        justify-content: space-between;
+    }
+    
+    .edit-product-btn, .delete-product-btn {
+        max-width: none;
     }
 }

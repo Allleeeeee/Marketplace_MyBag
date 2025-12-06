@@ -39,26 +39,36 @@
 }
 
 .seller-image {
+    position: relative;
     width: 100%;
     height: 200px;
     border-radius: 8px;
     overflow: hidden;
     margin-bottom: 15px;
     background: #f8f9fa;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 .seller-image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
 }
 
 .seller-image-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-size: 48px;
     color: #6c757d;
+    background: #f8f9fa;
 }
 
 .seller-info {
@@ -125,6 +135,36 @@
     border-color: #007bff;
 }
 
+.no-sellers {
+    text-align: center;
+    padding: 40px;
+    font-size: 1.1rem;
+    color: #6c757d;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+.seller-id {
+    font-size: 12px;
+    color: #6c757d;
+    margin-top: 5px;
+}
+
+.back-button {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.back-button:hover {
+    background: #0056b3;
+}
+
 @media (max-width: 768px) {
     .sellers-page {
         padding: 10px;
@@ -138,37 +178,4 @@
     .sellers-title {
         font-size: 1.5rem;
     }
-}
-
-/* css/pages/SellersPage.css */
-.no-sellers {
-    text-align: center;
-    padding: 40px;
-    font-size: 1.1rem;
-    color: #6c757d;
-    background: #f8f9fa;
-    border-radius: 8px;
-    margin: 20px 0;
-}
-
-/* css/pages/SellersPage.css */
-.seller-id {
-    font-size: 12px;
-    color: #6c757d;
-    margin-top: 5px;
-}
-
-/* css/pages/SellerDetailPage.css */
-.back-button {
-    background: #007bff;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 10px;
-}
-
-.back-button:hover {
-    background: #0056b3;
 }

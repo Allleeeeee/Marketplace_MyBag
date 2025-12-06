@@ -16,7 +16,6 @@ const ShopSearchButton = () => {
             onClick={handleShopSearch}
             title="Поиск по магазинам"
         >
-            <span className="shop-icon">🏪</span>
             <span className="button-text">Магазины</span>
         </button>
     );

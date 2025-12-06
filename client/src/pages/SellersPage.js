@@ -1,5 +1,5 @@
 // pages/SellersPage.js
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { observer } from 'mobx-react-lite';
 import { Context } from '../index';
 import { useHistory } from 'react-router-dom';
@@ -11,11 +11,7 @@ const SellersPage = observer(() => {
     const [currentPage, setCurrentPage] = useState(1);
     const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
-        loadSellers();
-    }, [currentPage, product.selectedCity]);
-
-    const loadSellers = async () => {
+    const loadSellers = useCallback(async () => {
         setLoading(true);
         try {
             await product.fetchSellers(product.selectedCity, currentPage, 12);
@@ -24,7 +20,11 @@ const SellersPage = observer(() => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [product, currentPage, product.selectedCity]);
+
+    useEffect(() => {
+        loadSellers();
+    }, [loadSellers]);
 
     const handleSellerClick = (seller) => {
         history.push(`/seller/${seller.id}`);
@@ -70,13 +70,13 @@ const SellersPage = observer(() => {
                                             />
                                         ) : null}
                                         <div className="seller-image-placeholder">
-                                            Магазин
+                                            {seller.name ? seller.name.charAt(0).toUpperCase() : 'М'}
                                         </div>
                                     </div>
                                     <div className="seller-info">
                                         <h3 className="seller-name">{seller.name}</h3>
                                         <p className="seller-description">
-                                            {seller.description || 'Магазин товаров'}
+                                            {seller.description || 'Описания нет'}
                                         </p>
                                         {seller.rating && (
                                             <div className="seller-rating">

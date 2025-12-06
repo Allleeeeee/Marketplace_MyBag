@@ -14,7 +14,7 @@ const ProductPage = observer(() => {
     const [favoriteId, setFavoriteId] = useState(null);
     const { id } = useParams();
     const history = useHistory();
-    const { user } = useContext(Context);
+    const { user, message } = useContext(Context);
 
     useEffect(() => {
         const getProduct = async () => {
@@ -70,6 +70,46 @@ const ProductPage = observer(() => {
         }
     };
 
+    const handleContactSeller = () => {
+        if (!user.isAuth) {
+            alert('Для связи с продавцом необходимо авторизоваться');
+            history.push('/login');
+            return;
+        }
+
+        if (!product) {
+            alert('Информация о товаре недоступна');
+            return;
+        }
+
+        // Если в продукте нет информации о продавце, используем seller_id из продукта
+        if (!product.seller && !product.seller_id) {
+            alert('Информация о продавце недоступна');
+            return;
+        }
+
+        // Проверяем, что пользователь не пытается написать сам себе
+        const sellerUserId = product.seller ? product.seller.user_id : product.seller_id;
+        if (user.user.id === sellerUserId) {
+            alert('Вы не можете написать самому себе');
+            return;
+        }
+
+        // Создаем объект для чата с продавцом
+        const sellerUser = {
+            id: sellerUserId,
+            username: product.seller ? product.seller.name : 'Продавец',
+            role: 'SELLER'
+        };
+
+        // Устанавливаем активный чат и открываем модальное окно
+        message.setActiveChat({
+            otherUser: sellerUser,
+            product: product
+        });
+        message.setIsModalOpen(true);
+    };
+
     if (loading) {
         return (
             <div className="product-page-container">
@@ -102,7 +142,6 @@ const ProductPage = observer(() => {
 
     return (
         <div className="product-page-container">
-          
             <div className="product-page-header">
                 <div className="product-nav">
                     <button className="back-button" onClick={() => history.goBack()}>
@@ -127,6 +166,18 @@ const ProductPage = observer(() => {
                                 />
                             )}
                             <div className="gallery-overlay"></div>
+                        </div>
+
+                        {/* Секция связи с продавцом под картинкой - только кнопка */}
+                        <div className="seller-contact-section">
+                            <div className="seller-info-card">
+                                <button 
+                                    className="contact-button glow-effect"
+                                    onClick={handleContactSeller}
+                                >
+                                    💬 Связаться с продавцом
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -183,12 +234,6 @@ const ProductPage = observer(() => {
                                 </div>
                             </div>
                         )}
-
-                        <div className="contact-section">
-                            <button className="contact-button glow-effect">
-                                Связаться с продавцом
-                            </button>
-                        </div>
                     </div>
                 </div>
             </div>

@@ -1,4 +1,3 @@
-// controllers/sellerController.js
 const ApiError = require('../error/ApiError');
 const { Seller, Product, ProductInfo, Type } = require('../models/models');
 const fs = require('fs');
@@ -68,9 +67,7 @@ class SellerController {
             next(ApiError.internal('Ошибка при создании продавца'));
         }
     }
-
-  // controllers/sellerController.js
-async getAll(req, res, next) {
+    async getAll(req, res, next) {
     try {
         let { limit, page, city } = req.query;
         page = page || 1;
@@ -91,7 +88,6 @@ async getAll(req, res, next) {
             if (sellerIds.length > 0) {
                 whereClause.id = sellerIds;
             } else {
-                // Если нет продавцов в этом городе, возвращаем пустой список
                 return res.json({
                     rows: [],
                     count: 0,
@@ -131,7 +127,7 @@ async getAll(req, res, next) {
     async getSellerInfo(req, res, next) {
         const { id } = req.params;
         try {
-            const seller = await Seller.findOne({ where: { id } });
+            const seller = await Seller.findOne({ where: { user_id: id  } });
             if (!seller) {
                 return next(ApiError.notFound('Продавец не найден'));
             }
@@ -140,7 +136,7 @@ async getAll(req, res, next) {
             if (sellerData.img) {
                 sellerData.img = `${req.protocol}://${req.get('host')}/static/${sellerData.img}`;
             }
-            
+            console.log('servr: '+sellerData );
             return res.json(sellerData);
         } catch (e) {
             console.error('Get seller error:', e);
@@ -168,32 +164,41 @@ async getAll(req, res, next) {
         }
     }
 
-    async getSellerProducts(req, res, next) {
-        const { sellerId } = req.params;
-        try {
-            const products = await Product.findAll({
-                where: { seller_id: sellerId },
-                include: [
-                    { model: ProductInfo, as: 'info' },
-                    { model: Type, attributes: ['id', 'name'] }
-                ],
-                order: [['createdAt', 'DESC']]
-            });
+async getSellerProducts(req, res, next) {
+    const { sellerId } = req.params;
+    try {
+        console.log('🔄 getSellerProducts called with sellerId:', sellerId);
+        console.log('📡 Request URL:', req.originalUrl);
+        console.log('🔍 Request params:', req.params);
+        
+        const products = await Product.findAll({
+            where: { seller_id: sellerId },
+            include: [
+                { model: ProductInfo, as: 'info' },
+                { model: Type, attributes: ['id', 'name'] }
+            ],
+            order: [['createdAt', 'DESC']]
+        });
 
-            const productsWithFullUrls = products.map(product => {
-                const productData = product.toJSON();
-                if (productData.img) {
-                    productData.img = `${req.protocol}://${req.get('host')}/static/${productData.img}`;
-                }
-                return productData;
-            });
+        console.log('✅ Found products in database:', products.length);
+        console.log('📦 Products details:', products.map(p => ({ id: p.id, name: p.name, seller_id: p.seller_id })));
 
-            return res.json(productsWithFullUrls);
-        } catch (e) {
-            console.error('Get seller products error:', e);
-            next(ApiError.internal('Ошибка при получении товаров продавца'));
-        }
+        const productsWithFullUrls = products.map(product => {
+            const productData = product.toJSON();
+            if (productData.img) {
+                productData.img = `${req.protocol}://${req.get('host')}/static/${productData.img}`;
+            }
+            return productData;
+        });
+
+        console.log('📤 Sending response with products:', productsWithFullUrls.length);
+        return res.json(productsWithFullUrls);
+    } catch (e) {
+        console.error('❌ Get seller products error:', e);
+        console.error('Stack trace:', e.stack);
+        next(ApiError.internal('Ошибка при получении товаров продавца'));
     }
+}
 
     async updateSeller(req, res, next) {
         const { id } = req.params;

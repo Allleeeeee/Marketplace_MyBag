@@ -7,7 +7,8 @@ const User = sequelize.define('user', {
     password: { type: DataTypes.STRING, allowNull: false },
     email: { type: DataTypes.STRING, unique: true, allowNull: false },
     phone: { type: DataTypes.STRING },
-    role: { type: DataTypes.STRING, defaultValue: 'USER' }
+    role: { type: DataTypes.STRING, defaultValue: 'USER' },
+    is_blocked: { type: DataTypes.BOOLEAN, defaultValue: false } 
 });
 
 const Seller = sequelize.define('seller', {
@@ -28,7 +29,6 @@ const Product = sequelize.define('product', {
     price: { type: DataTypes.FLOAT }, 
     price_type: { type: DataTypes.STRING, defaultValue: 'fixed' }, 
     price_text: { type: DataTypes.STRING }, 
-    currency: { type: DataTypes.STRING, defaultValue: 'USD' }, 
     seller_id: { type: DataTypes.INTEGER, allowNull: false },
     type_id: { type: DataTypes.INTEGER }, 
     img: { type: DataTypes.STRING }
@@ -40,9 +40,11 @@ const Message = sequelize.define('message', {
     sender_id: { type: DataTypes.INTEGER, allowNull: false },
     receiver_id: { type: DataTypes.INTEGER, allowNull: false },
     product_id: { type: DataTypes.INTEGER },
-    message: { type: DataTypes.TEXT },
+    message: { type: DataTypes.TEXT, allowNull: false },
+    is_read: { type: DataTypes.BOOLEAN, defaultValue: false },
     timestamp: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
 });
+
 
 const Type = sequelize.define('type', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
@@ -83,6 +85,7 @@ User.hasMany(Message, { foreignKey: 'sender_id', as: 'sentMessages' });
 User.hasMany(Message, { foreignKey: 'receiver_id', as: 'receivedMessages' });
 Message.belongsTo(User, { foreignKey: 'sender_id', as: 'sender' });
 Message.belongsTo(User, { foreignKey: 'receiver_id', as: 'receiver' });
+Message.belongsTo(Product, { foreignKey: 'product_id', as: 'product' });
 
 User.hasMany(Favorite, { foreignKey: 'user_id' });
 Favorite.belongsTo(User, { foreignKey: 'user_id' });

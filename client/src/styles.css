@@ -33,6 +33,7 @@
     transform: scale(1.05);
 }
 
+/* УНИФИЦИРОВАННЫЕ СТИЛИ ДЛЯ ВСЕХ КНОПОК */
 .navbar .nav-button {
     margin-left: 15px;
     background: rgba(255, 255, 255, 0.9);
@@ -44,19 +45,83 @@
     text-decoration: none;
     transition: all 0.3s ease;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    font-size: 14px;
+    line-height: 1.2;
 }
 
+/* Стили для кнопок с иконками */
+.navbar .nav-button .navbarimg {
+    width: 20px;
+    height: 20px;
+    margin-right: 0;
+    border: none;
+    border-radius: 0;
+    transition: transform 0.3s ease;
+}
+
+.navbar .nav-button:hover .navbarimg {
+    transform: scale(1.1);
+}
+
+/* Стили для текста в кнопках */
+.navbar .nav-button .nav-text {
+    display: inline;
+    margin-left: 0;
+    white-space: nowrap;
+}
+
+/* Стили для кнопки сообщений */
+.navbar .nav-button.position-relative {
+    position: relative;
+    padding: 8px 20px;
+}
+
+.navbar .nav-button.position-relative .nav-text {
+    margin-left: 0;
+}
+
+/* Стили для бейджа уведомлений */
+.navbar .nav-button .badge {
+    font-size: 0.6rem;
+    min-width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+}
+
+/* Ховер-эффекты для всех кнопок */
 .navbar .nav-button:hover {
     background: #ffffff;
     border-color: #1a1a1a;
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    color: #1a1a1a;
 }
 
 .navbar .nav-button:active {
     transform: translateY(0);
 }
 
+/* Стили для неактивных кнопок */
+.navbar .nav-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.navbar .nav-button:disabled:hover {
+    transform: none;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Контейнеры навбара */
 .navbar-container {
     display: flex;
     justify-content: space-between;
@@ -120,6 +185,7 @@
     padding: 5px;
 }
 
+/* АДАПТИВНОСТЬ */
 @media (max-width: 768px) {
     .navbar {
         padding: 10px 15px;
@@ -166,6 +232,7 @@
         width: 100%;
         text-align: center;
         justify-content: center;
+        padding: 10px 20px;
     }
     
     .navbar img {
@@ -181,19 +248,27 @@
         display: inline;
         margin-left: 8px;
     }
+    
+    /* На мобильных делаем все кнопки одинаковой ширины */
+    .navbar .nav-button {
+        min-width: 200px;
+        justify-content: flex-start;
+    }
 }
 
 @media (min-width: 769px) {
     .nav-text {
         display: inline;
-        margin-left: 8px;
     }
     
-    .navbar .nav-button .nav-text {
-        margin-left: 0;
+    /* Обеспечиваем одинаковую высоту и выравнивание для всех кнопок */
+    .navbar .nav-button {
+        min-width: auto;
+        white-space: nowrap;
     }
 }
 
+/* АНИМАЦИИ */
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -209,6 +284,7 @@
     animation: fadeIn 0.5s ease-out;
 }
 
+/* Специфичные стили для разных типов кнопок */
 .navbar .nav-button.primary {
     background: #1a1a1a;
     color: #ffd700;
@@ -217,57 +293,41 @@
 .navbar .nav-button.primary:hover {
     background: #000000;
     border-color: #000000;
+    color: #ffd700;
 }
 
-.nav-badge {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    background: #ff4444;
-    color: white;
-    border-radius: 50%;
-    width: 18px;
-    height: 18px;
-    font-size: 10px;
+/* Стили для CityDisplay и других компонентов в навбаре */
+.navbar .city-display {
+    margin-left: 15px;
+    padding: 8px 16px;
+    border-radius: 25px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid transparent;
+    font-weight: 600;
+}
+
+/* Убедимся, что все кнопки имеют одинаковую высоту */
+.navbar .btn {
+    min-height: 44px;
     display: flex;
     align-items: center;
-    justify-content: center;
-    font-weight: bold;
 }
 
-.nav-dropdown {
-    position: relative;
+/* Стили для бренда и логотипа */
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
 }
 
-.nav-dropdown-content {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    background: white;
-    min-width: 200px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-    border-radius: 8px;
-    z-index: 1000;
-    margin-top: 10px;
+/* Дополнительные стили для консистентности */
+.navbar .nav-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(26, 26, 26, 0.1);
 }
 
-.nav-dropdown:hover .nav-dropdown-content {
-    display: block;
-    animation: fadeIn 0.3s ease;
-}
-
-.nav-dropdown-content .nav-link {
-    display: block;
-    padding: 12px 16px;
-    border-radius: 0;
-    border-bottom: 1px solid #f0f0f0;
-}
-
-.nav-dropdown-content .nav-link:last-child {
-    border-bottom: none;
-}
-
-.nav-dropdown-content .nav-link:hover {
-    background: #fff9c4;
+/* Стили для кнопки выхода */
+.navbar .nav-button:last-child {
+    margin-right: 0;
 }

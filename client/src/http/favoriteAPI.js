@@ -1,4 +1,4 @@
-// http/favoriteAPI.js
+
 import { $authHost } from "./index";
 
 export const addToFavorite = async (userId, productId) => {

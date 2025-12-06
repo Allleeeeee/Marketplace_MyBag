@@ -19,7 +19,6 @@ const AppRouter =()=> {
      {publicRoutes.map (({path,Component})=>
     <Route key={path} path={path} component={Component} exact/>)}
      
-     {/* Добавляем маршруты для продавцов */}
      <Route path="/sellers" component={SellersPage} exact/>
      <Route path="/seller/:id" component={SellerDetailPage} exact/>
      

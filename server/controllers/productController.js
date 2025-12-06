@@ -452,7 +452,32 @@ class ProductController {
             return res.status(500).json({ message: 'Ошибка при получении типов товаров' });
         }
     }
-
+async getOne(req, res) {
+    try {
+        const { id } = req.params;
+        const product = await Product.findByPk(id, {
+            include: [
+                {
+                    model: Seller,
+                    attributes: ['id', 'name', 'rating', 'description', 'img', 'user_id']
+                },
+                {
+                    model: ProductInfo,
+                    as: 'info'
+                }
+            ]
+        });
+        
+        if (!product) {
+            return res.status(404).json({ message: 'Товар не найден' });
+        }
+        
+        res.json(product);
+    } catch (error) {
+        console.error('Error getting product:', error);
+        res.status(500).json({ message: 'Ошибка при получении товара', error: error.message });
+    }
+}
     async search(req, res) {
         try {
             let { 
@@ -657,8 +682,6 @@ class ProductController {
             return res.json(BELARUS_CITIES.sort());
         }
     }
-// В controllers/productController.js добавьте метод update
-// controllers/productController.js - добавьте этот метод
 async update(req, res, next) {
     try {
         const { id } = req.params;
@@ -668,16 +691,13 @@ async update(req, res, next) {
         console.log('Updating product with data:', { 
             name, price, typeId, city, description, priceType, priceText, currency 
         });
-
-        // Находим товар
         const product = await Product.findOne({ where: { id } });
         if (!product) {
             return next(ApiError.notFound('Товар не найден'));
         }
 
         let fileName = product.img;
-        
-        // Обрабатываем новое изображение
+    
         if (img) {
             if (!img.mimetype.startsWith('image/')) {
                 return next(ApiError.badRequest('Можно загружать только изображения (JPG, PNG, GIF)'));
@@ -691,7 +711,6 @@ async update(req, res, next) {
             const filePath = path.resolve(__dirname, '..', 'static', fileName);
             await img.mv(filePath);
 
-            // Удаляем старое изображение
             if (product.img) {
                 const oldFilePath = path.resolve(__dirname, '..', 'static', product.img);
                 if (fs.existsSync(oldFilePath)) {
@@ -700,7 +719,6 @@ async update(req, res, next) {
             }
         }
 
-        // Валидация типа цены
         const validPriceTypes = ['fixed', 'negotiable', 'custom'];
         const finalPriceType = validPriceTypes.includes(priceType) ? priceType : 'fixed';
 
@@ -725,7 +743,6 @@ async update(req, res, next) {
             finalPriceText = priceText.trim();
         }
 
-        // Обновляем товар
         await product.update({
             name: name.trim(),
             price: finalPrice,
@@ -738,13 +755,10 @@ async update(req, res, next) {
             description: description?.trim() || ''
         });
 
-        // Обновляем характеристики
         if (info) {
             try {
-                // Удаляем старые характеристики
                 await ProductInfo.destroy({ where: { product_id: id } });
-                
-                // Добавляем новые
+            
                 let characteristics = [];
                 if (typeof info === 'string') {
                     characteristics = JSON.parse(info);
@@ -772,8 +786,6 @@ async update(req, res, next) {
                 console.error('Error parsing product info:', parseError);
             }
         }
-
-        // Получаем обновленный товар с характеристиками
         const updatedProduct = await Product.findOne({
             where: { id },
             include: [

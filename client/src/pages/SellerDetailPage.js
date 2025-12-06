@@ -17,6 +17,7 @@ const SellerDetailPage = observer(() => {
     const [reviews, setReviews] = useState([]);
     const [reviewsLoading, setReviewsLoading] = useState(false);
     const [showReviewForm, setShowReviewForm] = useState(false);
+    const [actionLoading, setActionLoading] = useState(false);
 
     useEffect(() => {
         loadSellerData();
@@ -44,6 +45,8 @@ const SellerDetailPage = observer(() => {
             if (response.ok) {
                 const reviewsData = await response.json();
                 setReviews(reviewsData);
+            } else {
+                throw new Error('Ошибка при загрузке отзывов');
             }
         } catch (error) {
             console.error('Ошибка при загрузке отзывов:', error);
@@ -53,57 +56,88 @@ const SellerDetailPage = observer(() => {
     };
 
     const handleAddReview = async (reviewData) => {
+        setActionLoading(true);
         try {
-            const formData = new FormData();
-            formData.append('sellerId', reviewData.sellerId);
-            formData.append('userId', user.user.id);
-            formData.append('rating', reviewData.rating);
-            formData.append('comment', reviewData.comment);
-            if (reviewData.image) {
-                formData.append('image', reviewData.image);
-            }
-
+            console.log('📝 Отправка отзыва:', reviewData);
+            
             const response = await fetch('http://localhost:5000/api/review', {
                 method: 'POST',
-                body: formData,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify({
+                    sellerId: parseInt(id),
+                    userId: user.user.id,
+                    rating: reviewData.rating,
+                    comment: reviewData.comment,
+                    imageUrl: null
+                }),
             });
 
+            const responseData = await response.json();
+            
             if (response.ok) {
-                await loadReviews(); // Перезагружаем отзывы
-                await product.fetchSellerById(id); // Обновляем рейтинг продавца
+                console.log('✅ Отзыв успешно создан:', responseData);
+                await loadReviews();
+                await product.fetchSellerById(id);
                 setShowReviewForm(false);
+                alert('Отзыв успешно добавлен!');
             } else {
-                throw new Error('Ошибка при добавлении отзыва');
+                console.error('❌ Ошибка от сервера:', responseData);
+                throw new Error(responseData.message || 'Ошибка при добавлении отзыва');
             }
         } catch (error) {
-            console.error('Ошибка:', error);
-            alert('Не удалось добавить отзыв');
+            console.error('❌ Ошибка при добавлении отзыва:', error);
+            alert(error.message || 'Не удалось добавить отзыв');
             throw error;
+        } finally {
+            setActionLoading(false);
         }
     };
 
     const handleDeleteReview = async (reviewId) => {
         if (window.confirm('Вы уверены, что хотите удалить отзыв?')) {
+            setActionLoading(true);
             try {
                 const response = await fetch(`http://localhost:5000/api/review/${reviewId}`, {
                     method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
                 });
 
                 if (response.ok) {
-                    await loadReviews(); // Перезагружаем отзывы
-                    await product.fetchSellerById(id); // Обновляем рейтинг продавца
+                    await loadReviews();
+                    await product.fetchSellerById(id);
+                    alert('Отзыв успешно удален!');
                 } else {
-                    throw new Error('Ошибка при удалении отзыва');
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Ошибка при удалении отзыва');
                 }
             } catch (error) {
                 console.error('Ошибка:', error);
-                alert('Не удалось удалить отзыв');
+                alert(error.message || 'Не удалось удалить отзыв');
+            } finally {
+                setActionLoading(false);
             }
         }
     };
 
     const handleProductClick = (productId) => {
         history.push(`/product/${productId}`);
+    };
+
+    // Безопасная функция для обработки ошибок изображений
+    const handleImageError = (e) => {
+        if (e.target) {
+            e.target.style.display = 'none';
+        }
+    };
+
+    // Безопасная функция для получения первой буквы имени
+    const getFirstLetter = (name) => {
+        return name ? name.charAt(0).toUpperCase() : '?';
     };
 
     if (loading) {
@@ -126,19 +160,20 @@ const SellerDetailPage = observer(() => {
     return (
         <div className="seller-detail-page">
             <div className="seller-detail-container">
+                {/* Заголовок и основная информация */}
                 <div className="seller-header">
                     <div className="seller-avatar">
                         {product.selectedSeller.img ? (
                             <img 
                                 src={product.selectedSeller.img} 
                                 alt={product.selectedSeller.name}
-                                onError={(e) => {
-                                    e.target.style.display = 'none';
-                                    e.target.nextSibling.style.display = 'flex';
-                                }}
+                                onError={handleImageError}
                             />
-                        ) : null}
-                        
+                        ) : (
+                            <div className="avatar-placeholder">
+                                {getFirstLetter(product.selectedSeller.name)}
+                            </div>
+                        )}
                     </div>
                     <div className="seller-basic-info">
                         <h1 className="seller-title">{product.selectedSeller.name}</h1>
@@ -170,8 +205,9 @@ const SellerDetailPage = observer(() => {
                             <button 
                                 className="add-review-btn"
                                 onClick={() => setShowReviewForm(true)}
+                                disabled={actionLoading}
                             >
-                                Написать отзыв
+                                {actionLoading ? 'Загрузка...' : 'Написать отзыв'}
                             </button>
                         )}
                     </div>
@@ -183,6 +219,7 @@ const SellerDetailPage = observer(() => {
                         sellerId={parseInt(id)}
                         onSubmit={handleAddReview}
                         onCancel={() => setShowReviewForm(false)}
+                        loading={actionLoading}
                     />
                 )}
 
@@ -197,6 +234,7 @@ const SellerDetailPage = observer(() => {
                             reviews={reviews}
                             currentUserId={user.user?.id}
                             onDeleteReview={handleDeleteReview}
+                            loading={actionLoading}
                         />
                     )}
                 </div>
@@ -220,13 +258,13 @@ const SellerDetailPage = observer(() => {
                                             <img 
                                                 src={productItem.img} 
                                                 alt={productItem.name}
-                                                onError={(e) => {
-                                                    e.target.style.display = 'none';
-                                                    e.target.nextSibling.style.display = 'flex';
-                                                }}
+                                                onError={handleImageError}
                                             />
-                                        ) : null}
-                                        
+                                        ) : (
+                                            <div className="image-placeholder">
+                                                📷
+                                            </div>
+                                        )}
                                     </div>
                                     <div className="product-info">
                                         <h3 className="product-name">{productItem.name}</h3>
